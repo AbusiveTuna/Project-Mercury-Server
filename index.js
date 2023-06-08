@@ -2,10 +2,11 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 const pool = require('./db');
-const bcrypt = require('bcrypt');
-const cors = require('cors')
+const bcrypt = require('bcryptjs');
+const cors = require('cors');
 
-app.use(cors())
+app.use(cors());
+
 app.get('/', (req, res) => res.send('Hello World!'));
 
 app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
@@ -25,7 +26,6 @@ pool.query(`
   }
   console.log('Table successfully created');
 });
-
 
 app.post('/addUser', async (req, res) => {
   const { username, password, email, birthdate } = req.body;
@@ -69,4 +69,4 @@ app.post('/login', async (req, res) => {
       console.error(err);
       res.status(500).json({ message: 'An error occurred during login' });
     }
-  });
+});
