@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 const pool = require('./db');
+const bcrypt = require('bcrypt');
 
 app.get('/', (req, res) => res.send('Hello World!'));
 
@@ -24,16 +25,46 @@ pool.query(`
 });
 
 
-app.get('/users', async (req, res) => {
+app.post('/addUser', async (req, res) => {
+  const { username, password, email, birthdate } = req.body;
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await pool.query(
+      "INSERT INTO users (username, password, email, birthdate) VALUES ($1, $2, $3, $4) RETURNING *",
+      [username, hashedPassword, email, birthdate]
+    );
+    res.json(user.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Server error");
+  }
+});
+
+app.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+  
     try {
-      const client = await pool.connect();
-      const result = await client.query('SELECT * FROM users');
-      const results = { 'results': (result) ? result.rows : null};
-      res.send(results);
-      client.release();
+      const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+  
+      if (result.rows.length > 0) {
+        const user = result.rows[0];
+  
+        // compare the provided password with the stored hashed password
+        const match = await bcrypt.compare(password, user.password);
+  
+        if (match) {
+          // login successful
+          res.status(200).json({ message: 'Login successful' });
+        } else {
+          // password is incorrect
+          res.status(401).json({ message: 'Invalid username or password' });
+        }
+      } else {
+        // username not found
+        res.status(401).json({ message: 'Invalid username or password' });
+      }
     } catch (err) {
       console.error(err);
-      res.send("Error " + err);
+      res.status(500).json({ message: 'An error occurred during login' });
     }
-  })
-  
+  });
