@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors');
 
 app.use(cors({
-    origin: 'https://projectsmercury.com/',
+    origin: 'https://projectsmercury.com',
     optionsSuccessStatus: 200
   }));
 
