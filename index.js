@@ -4,6 +4,8 @@ const port = process.env.PORT || 3000;
 const pool = require('./db');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
+const nodemailer = require('nodemailer');
+const Email = require('email-templates');
 
 app.use(cors({
     origin: 'https://projectsmercury.com',
@@ -92,8 +94,6 @@ app.post('/login', async (req, res) => {
     }
 });
 
-const nodemailer = require('nodemailer');
-const Email = require('email-templates');
 
 app.post('/requestReset', async (req, res) => {
   const { email } = req.body;
@@ -111,8 +111,6 @@ app.post('/requestReset', async (req, res) => {
         [email, code]
       );
 
-      //update with EMAILJS stuff
-        //npm install @emailjs/browser --save
       const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
