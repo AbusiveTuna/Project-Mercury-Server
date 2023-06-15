@@ -4,6 +4,7 @@ const port = process.env.PORT || 3000;
 const pool = require('./db');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
+import emailjs from '@emailjs/nodejs';
 
 app.use(cors({
     origin: 'https://projectsmercury.com',
@@ -93,55 +94,46 @@ app.post('/login', async (req, res) => {
 });
 
 
-// app.post('/requestReset', async (req, res) => {
-//   const { email } = req.body;
+app.post('/requestReset', async (req, res) => {
+  const { email } = req.body;
 
-//   try {
-//     // check if email exists in the database
-//     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+      
+    if (result.rows.length > 0) {
+      //generates a six-digit verification code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-//     if (result.rows.length > 0) {
-//       //generates a six-digit verification code
-//       const code = Math.floor(100000 + Math.random() * 900000).toString();
+      await pool.query(
+        'INSERT INTO password_reset (email, code) VALUES ($1, $2)',
+        [email, code]
+      );
 
-//       await pool.query(
-//         'INSERT INTO password_reset (email, code) VALUES ($1, $2)',
-//         [email, code]
-//       );
+        const emailParams = {
+            user_email: email,
+            user_name: result.username,
+            user_code: code
+        };
+        
+        await emailjs.send(
+            '<YOUR_SERVICE_ID>',
+            'template_79csyys',
+            emailParams
+            {
+              publicKey: '<YOUR_PUBLIC_KEY>', //todo
+              privateKey: '<YOUR_PRIVATE_KEY>', //todo
+            },
+          );
 
-//       const transporter = nodemailer.createTransport({
-//         service: 'gmail',
-//         auth: {
-//           user: process.env.EMAIL_USER,
-//           pass: process.env.EMAIL_PASS
-//         }
-//       });
+        res.status(200).json({ message: 'Email Sent' });
 
-//       const emailTemplate = new Email({
-//         transport: transporter,
-//         send: true,
-//         preview: false,
-//       });
-
-//       await emailTemplate.send({
-//         template: 'passwordReset',
-//         message: {
-//           to: email
-//         },
-//         locals: {
-//           code: code
-//         }
-//       });
-
-//       res.status(200).json({ message: 'Verification code sent' });
-//     } else {
-//       res.status(404).json({ message: 'Email not found' });
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).json({ message: 'An error occurred while requesting a password reset' });
-//   }
-// });
+    } else {
+      res.status(404).json({ message: 'Email not found' });
+    }
+  } catch (err) {
+    res.status(500).json({ message: 'An error occurred while requesting a password reset' });
+  }
+});
 
 app.post('/verifyCode', async (req, res) => {
   const { email, code } = req.body;
