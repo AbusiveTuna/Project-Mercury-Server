@@ -95,12 +95,13 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/requestReset', async (req, res) => {
-  console.log(req);
+  console.log(req.body);
   const { email } = req.body;
+  console.log(email);
 
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-      
+    console.log(result);
     if (result.rows.length > 0) {
       //generates a six-digit verification code
       const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -109,7 +110,7 @@ app.post('/requestReset', async (req, res) => {
         'INSERT INTO password_reset (email, code) VALUES ($1, $2)',
         [email, code]
       );
-
+        console.log("Insert sucessful");
         const emailParams = {
             user_email: email,
             user_name: email,
@@ -125,6 +126,7 @@ app.post('/requestReset', async (req, res) => {
               privateKey: 'tT9scyR6DWakP4NpRVfCe',
             },
           );
+          console.log("send sucessful");
 
         res.status(200).json({ message: 'Email Sent' });
 
