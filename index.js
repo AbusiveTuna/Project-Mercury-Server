@@ -4,7 +4,7 @@ const port = process.env.PORT || 3000;
 const pool = require('./db');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
-import emailjs from '@emailjs/nodejs';
+const emailjs = require('@emailjs/nodejs');
 
 app.use(cors({
     origin: 'https://projectsmercury.com',
