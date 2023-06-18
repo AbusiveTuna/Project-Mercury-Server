@@ -95,9 +95,7 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/requestReset', async (req, res) => {
-  console.log(req.body);
   const { email } = req.body;
-  console.log(email);
 
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -110,7 +108,6 @@ app.post('/requestReset', async (req, res) => {
         'INSERT INTO password_reset (email, code) VALUES ($1, $2)',
         [email, code]
       );
-        console.log("Insert sucessful");
         const emailParams = {
             user_email: email,
             user_name: email,
@@ -126,7 +123,6 @@ app.post('/requestReset', async (req, res) => {
               privateKey: 'tT9scyR6DWakP4NpRVfCe',
             },
           );
-          console.log("send sucessful");
 
         res.status(200).json({ message: 'Email Sent' });
 
@@ -140,7 +136,8 @@ app.post('/requestReset', async (req, res) => {
 
 app.post('/verifyCode', async (req, res) => {
   const { email, code } = req.body;
-
+  console.log(email);
+  console.log(code);
   try {
     const result = await pool.query(
       'SELECT * FROM password_reset WHERE email = $1 AND code = $2',
