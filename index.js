@@ -95,6 +95,7 @@ app.post('/login', async (req, res) => {
 
 
 app.post('/requestReset', async (req, res) => {
+  console.log(req);
   const { email } = req.body;
 
   try {
@@ -111,7 +112,7 @@ app.post('/requestReset', async (req, res) => {
 
         const emailParams = {
             user_email: email,
-            user_name: result.username,
+            user_name: email,
             user_code: code
         };
         
