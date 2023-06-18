@@ -116,12 +116,12 @@ app.post('/requestReset', async (req, res) => {
         };
         
         await emailjs.send(
-            '<YOUR_SERVICE_ID>',
+            'service_9l9zs6q',
             'template_79csyys',
-            emailParams
+            emailParams,
             {
-              publicKey: '<YOUR_PUBLIC_KEY>', //todo
-              privateKey: '<YOUR_PRIVATE_KEY>', //todo
+              publicKey: 'Md9NldnA1AWDcGT8U',
+              privateKey: 'tT9scyR6DWakP4NpRVfCe',
             },
           );
 
