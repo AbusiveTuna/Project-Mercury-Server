@@ -93,6 +93,20 @@ app.post('/login', async (req, res) => {
     }
 });
 
+app.get('/checkUsernameAvailability/:username', async (req, res) => {
+  const { username } = req.params;
+  try {
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+    if (result.rows.length > 0) {
+      res.json({ isAvailable: false });
+    } else {
+      res.json({ isAvailable: true });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'An error occurred while checking username availability' });
+  }
+});
 
 app.post('/requestReset', async (req, res) => {
   const { email } = req.body;
