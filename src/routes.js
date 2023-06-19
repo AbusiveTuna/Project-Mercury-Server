@@ -82,12 +82,12 @@ router.post('/requestReset', async (req, res) => {
         };
         
         await emailjs.send(
-            'service_9l9zs6q',
-            'template_79csyys',
+            process.env.EMAILJS_SERVICE_KEY,
+            process.env.EMAILJS_TEMPLATE_KEY,
             emailParams,
             {
-              publicKey: 'Md9NldnA1AWDcGT8U',
-              privateKey: 'tT9scyR6DWakP4NpRVfCe',
+              publicKey: process.env.EMAILJS_PUBLIC_KEY,
+              privateKey: process.env.EMAILJS_PRIVATE_KEY,
             },
           );
 
