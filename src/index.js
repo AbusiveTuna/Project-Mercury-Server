@@ -1,10 +1,14 @@
 const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
-const pool = require('./db');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const emailjs = require('@emailjs/nodejs');
+const tables = require('./db/tables');
+const pool = require('./db/db');
+
+//ensure database tables are created
+tables();
 
 app.use(cors({
     origin: 'https://projectsmercury.com',
@@ -16,38 +20,6 @@ app.use(express.json());
 app.get('/', (req, res) => res.send('Hello World!'));
 
 app.listen(port, () => console.log(``));
-
-pool.query(`
-  CREATE TABLE IF NOT EXISTS users (
-    id SERIAL PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    birthdate DATE NOT NULL
-  );
-`, (err, res) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log('Table successfully created');
-});
-
-pool.query(`
-  CREATE TABLE IF NOT EXISTS password_reset (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) NOT NULL,
-    code VARCHAR(6) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-  );
-`, (err, res) => {
-  if (err) {
-    console.error(err);
-    return;
-  }
-  console.log('Table successfully created');
-});
-
 
 app.post('/addUser', async (req, res) => {
   const { username, password, email, birthdate } = req.body;
@@ -72,19 +44,15 @@ app.post('/login', async (req, res) => {
   
       if (result.rows.length > 0) {
         const user = result.rows[0];
-  
-        // compare the provided password with the stored hashed password
+
         const match = await bcrypt.compare(password, user.password);
   
         if (match) {
-          // login successful
           res.status(200).json({ message: 'Login successful' });
         } else {
-          // password is incorrect
           res.status(401).json({ message: 'Invalid username or password' });
         }
       } else {
-        // username not found
         res.status(401).json({ message: 'Invalid username or password' });
       }
     } catch (err) {
