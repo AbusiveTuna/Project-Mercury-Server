@@ -66,7 +66,6 @@ router.post('/requestReset', async (req, res) => {
 
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-    console.log(result);
     if (result.rows.length > 0) {
       //generates a six-digit verification code
       const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -103,8 +102,6 @@ router.post('/requestReset', async (req, res) => {
 
 router.post('/verifyCode', async (req, res) => {
   const { email, code } = req.body;
-  console.log(email);
-  console.log(code);
   try {
     const result = await pool.query(
       'SELECT * FROM password_reset WHERE email = $1 AND code = $2',
