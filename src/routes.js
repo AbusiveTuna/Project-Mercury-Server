@@ -79,6 +79,8 @@ router.post('/requestReset', async (req, res) => {
             user_name: email,
             user_code: code
         };
+
+        console.log(process.env.EMAILJS_SERVICE_KEY);
         
         await emailjs.send(
             process.env.EMAILJS_SERVICE_KEY,
