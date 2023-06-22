@@ -3,12 +3,48 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const pool = require('./db/db');
 const emailjs = require('@emailjs/nodejs');
+const validator = require('validator') //npm install validator (todo at home)
 
 router.get('/', (req, res) => res.send('Hello World!'));
 
+function validateUserInput(username,password,email,birthdate){
+
+  if (!validator.isEmail(email)) {
+    throw new Error('Invalid email address');
+  }
+
+  const sanitizedEmail = validator.normalizeEmail(email);
+
+  if (!validator.isLength(username, { min: 3 })) {
+    throw new Error('Username must be at least 3 characters long');
+  }
+  
+  if (!validator.isLength(password, { min: 8 })) {
+    throw new Error('Password must be at least 8 characters long');
+  }
+  
+  const sanitizedUsername = validator.escape(username);
+  const sanitizedPassword = validator.escape(password);
+  const sanitizedBirthdate = validator.escape(birthdate);
+  
+  return {
+    username: sanitizedUsername,
+    password: sanitizedPassword,
+    email: sanitizedEmail,
+    birthdate: sanitizedBirthdate
+  };
+}
+
 router.post('/addUser', async (req, res) => {
-  const { username, password, email, birthdate } = req.body;
+  let { username, password, email, birthdate } = req.body;
+
   try {
+    const validatedInput = validateUserInput(username,password,email,birthdate);
+    username = validatedInput.username;
+    password = validatedInput.password;
+    email = validatedInput.email;
+    birthdate = validatedInput.birthdate;
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await pool.query(
       "INSERT INTO users (username, password, email, birthdate) VALUES ($1, $2, $3, $4) RETURNING *",
@@ -22,9 +58,12 @@ router.post('/addUser', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-    const { username, password } = req.body;
+    let { username, password } = req.body;
   
     try {
+      const validatedInput = validateUserInput(username,password,"None@gmail.com","1990-01-01");
+      username = validatedInput.username;
+      password = validatedInput.password;
       const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
   
       if (result.rows.length > 0) {
@@ -47,8 +86,10 @@ router.post('/login', async (req, res) => {
 });
 
 router.get('/checkUsernameAvailability/:username', async (req, res) => {
-  const { username } = req.params;
+  let { username } = req.params;
   try {
+    const validatedInput = validateUserInput(username,"None1234!","None@gmail.com","1990-01-01");
+    username = validatedInput.username;
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (result.rows.length > 0) {
       res.json({ isAvailable: false });
@@ -56,15 +97,16 @@ router.get('/checkUsernameAvailability/:username', async (req, res) => {
       res.json({ isAvailable: true });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'An error occurred while checking username availability' });
   }
 });
 
 router.post('/requestReset', async (req, res) => {
-  const { email } = req.body;
+  let { email } = req.body;
 
   try {
+    const validatedInput = validateUserInput("none1234","None1234!",email,"1990-01-01");
+    email = validatedInput.email;
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length > 0) {
       //generates a six-digit verification code
@@ -101,8 +143,11 @@ router.post('/requestReset', async (req, res) => {
 });
 
 router.post('/verifyCode', async (req, res) => {
-  const { email, code } = req.body;
+  let { email, code } = req.body;
   try {
+    const validatedInput = validateUserInput(code,"None1234!",email,"1990-01-01");
+    email = validatedInput.email;
+    code = validatedInput.username; //Code is being sent as username in validateUserInput
     const result = await pool.query(
       'SELECT * FROM password_reset WHERE email = $1 AND code = $2',
       [email, code]
@@ -125,15 +170,17 @@ router.post('/verifyCode', async (req, res) => {
       res.status(400).json({ message: 'Verification code incorrect' });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'An error occurred during verification' });
   }
 });
 
 router.post('/resetPassword', async (req, res) => {
-  const { email, newPassword } = req.body;
+  let { email, newPassword } = req.body;
 
   try {
+    const validatedInput = validateUserInput("None1234",newPassword,email,"1990-01-01");
+    email = validatedInput.email;
+    newPassword = validatedInput.password; 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await pool.query(
@@ -143,7 +190,6 @@ router.post('/resetPassword', async (req, res) => {
 
     res.status(200).json({ message: 'Password reset successful' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'An error occurred while resetting the password' });
   }
 });
