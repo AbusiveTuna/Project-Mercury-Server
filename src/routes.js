@@ -146,12 +146,14 @@ router.post('/verifyCode', async (req, res) => {
   let { email, code } = req.body;
   try {
     const validatedInput = validateUserInput(code,"None1234!",email,"1990-01-01");
+    console.log(validatedInput);
     email = validatedInput.email;
     code = validatedInput.username; //Code is being sent as username in validateUserInput
     const result = await pool.query(
       'SELECT * FROM password_reset WHERE email = $1 AND code = $2',
       [email, code]
     );
+    console.log(result);
 
     if (result.rows.length > 0) {
       const resetRequest = result.rows[0];
@@ -160,7 +162,7 @@ router.post('/verifyCode', async (req, res) => {
       const createdAt = new Date(resetRequest.created_at);
       const now = new Date();
       const diff = (now - createdAt) / 1000 / 60;
-
+      console.log(resetRequest);
       if (diff <= 10) {
         res.status(200).json({ message: 'Verification successful' });
       } else {
