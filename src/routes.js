@@ -10,26 +10,23 @@ router.get('/', (req, res) => res.send('Hello World!'));
 function validateUserInput(username,password,email,birthdate){
 
   if (!validator.isEmail(email)) {
-    console.log("1");
     throw new Error('Invalid email address');
   }
 
   const sanitizedEmail = validator.normalizeEmail(email);
 
   if (!validator.isLength(username, { min: 3 })) {
-    console.log("2");
     throw new Error('Username must be at least 3 characters long');
   }
   
   if (!validator.isLength(password, { min: 8 })) {
-    console.log("3");
     throw new Error('Password must be at least 8 characters long');
   }
   
   const sanitizedUsername = validator.escape(username);
   const sanitizedPassword = validator.escape(password);
   const sanitizedBirthdate = validator.escape(birthdate);
-  console.log(sanitizedUsername);
+  
   return {
     username: sanitizedUsername,
     password: sanitizedPassword,
@@ -146,18 +143,15 @@ router.post('/requestReset', async (req, res) => {
 });
 
 router.post('/verifyCode', async (req, res) => {
-  console.log(req.body);
   let { email, code } = req.body;
   try {
     const validatedInput = validateUserInput(code,"None1234!",email,"1990-01-01");
-    console.log(validatedInput);
     email = validatedInput.email;
     code = validatedInput.username; //Code is being sent as username in validateUserInput
     const result = await pool.query(
       'SELECT * FROM password_reset WHERE email = $1 AND code = $2',
       [email, code]
     );
-    console.log(result);
 
     if (result.rows.length > 0) {
       const resetRequest = result.rows[0];
@@ -166,7 +160,7 @@ router.post('/verifyCode', async (req, res) => {
       const createdAt = new Date(resetRequest.created_at);
       const now = new Date();
       const diff = (now - createdAt) / 1000 / 60;
-      console.log(resetRequest);
+
       if (diff <= 10) {
         res.status(200).json({ message: 'Verification successful' });
       } else {
