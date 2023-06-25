@@ -146,6 +146,7 @@ router.post('/requestReset', async (req, res) => {
 });
 
 router.post('/verifyCode', async (req, res) => {
+  console.log(req.body);
   let { email, code } = req.body;
   try {
     const validatedInput = validateUserInput(code,"None1234!",email,"1990-01-01");
