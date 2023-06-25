@@ -3,7 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const pool = require('./db/db');
 const emailjs = require('@emailjs/nodejs');
-const validator = require('validator') //npm install validator (todo at home)
+const validator = require('validator');
 
 router.get('/', (req, res) => res.send('Hello World!'));
 
