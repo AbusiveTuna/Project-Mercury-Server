@@ -10,23 +10,26 @@ router.get('/', (req, res) => res.send('Hello World!'));
 function validateUserInput(username,password,email,birthdate){
 
   if (!validator.isEmail(email)) {
+    console.log("1");
     throw new Error('Invalid email address');
   }
 
   const sanitizedEmail = validator.normalizeEmail(email);
 
   if (!validator.isLength(username, { min: 3 })) {
+    console.log("2");
     throw new Error('Username must be at least 3 characters long');
   }
   
   if (!validator.isLength(password, { min: 8 })) {
+    console.log("3");
     throw new Error('Password must be at least 8 characters long');
   }
   
   const sanitizedUsername = validator.escape(username);
   const sanitizedPassword = validator.escape(password);
   const sanitizedBirthdate = validator.escape(birthdate);
-  
+  console.log(sanitizedUsername);
   return {
     username: sanitizedUsername,
     password: sanitizedPassword,
