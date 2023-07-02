@@ -22,12 +22,18 @@ afterEach(async () => {
     await pool.query('DELETE FROM users WHERE username = $1', [testUser.username]);
 });
 
-// testing root route
+//used as a basic test to ensure things are running.
 test('root route returns "Hello World!"', async () => {
     const response = await request(app).get('/');
     expect(response.statusCode).toBe(200);
     expect(response.text).toBe('Hello World!');
 });
+
+/* 
+* Test Name: Valid User Registration
+* Unit Test ID: SUT1
+* Description: Tests when a user submits a valid user forum
+*/
 
 test('Valid Add User Test', async () => {
     const response = await request(app)
@@ -45,7 +51,12 @@ test('Valid Add User Test', async () => {
     await pool.query('DELETE FROM users WHERE username = $1', ['testuser2222']);
 });
 
-// test for adding user with invalid data
+/* 
+* Test Name: Invalid User Registration
+* Unit Test ID: SUT2
+* Description: Tests when a user submits an invalid user forum
+*/
+
 test('Invalid Add User Test', async () => {
     const response = await request(app)
         .post('/addUser')
@@ -58,6 +69,12 @@ test('Invalid Add User Test', async () => {
     expect(response.statusCode).toBe(500);
 });
 
+/* 
+* Test Name: Valid Login
+* Unit Test ID: SUT3
+* Description: Tests a valid username/password in login requests
+*/
+
 test('Valid Login Test', async () => {
     const response = await request(app)
         .post('/login')
@@ -68,6 +85,12 @@ test('Valid Login Test', async () => {
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty('message', 'Login successful');
 });
+
+/* 
+* Test Name: Invalid Login
+* Unit Test ID: SUT4
+* Description: Tests an incorrect username/password in login requests
+*/
 
 test('Invalid Login Test', async () => {
     const response = await request(app)
@@ -80,6 +103,12 @@ test('Invalid Login Test', async () => {
     expect(response.body).toHaveProperty('message', 'Invalid username or password');
 });
 
+/* 
+* Test Name: Username Available
+* Unit Test ID: SUT5
+* Description: Tests a non-existent name during username lookup
+*/
+
 test('Username Is Available', async () => {
     const username = 'availableTest';
     const response = await request(app).get(`/checkUsernameAvailability/${username}`);
@@ -88,6 +117,12 @@ test('Username Is Available', async () => {
     expect(response.body.isAvailable).toBe(true);
 });
 
+/* 
+* Test Name: Unavailable username
+* Unit Test ID: SUT6
+* Description: Tests an already used username in username lookup
+*/
+
 test('Username Is Unavailable', async () => {
     const username = 'testuser';
     const response = await request(app).get(`/checkUsernameAvailability/${username}`);
@@ -95,6 +130,12 @@ test('Username Is Unavailable', async () => {
     expect(response.statusCode).toBe(200);
     expect(response.body.isAvailable).toBe(false);
 });
+
+/* 
+* Test Name: Username Lookup Error Handling
+* Unit Test ID: SUT7
+* Description: Tests for errors during username lookup
+*/
 
 test('Username Availability error handling', async () => {
     const username = 'in';
@@ -118,6 +159,12 @@ describe('Request Reset Routes', () => {
         await pool.query("DELETE FROM users WHERE username = 'test'");
     });
 
+    /* 
+    * Test Name: Valid Email In Password Request
+    * Unit Test ID: SUT8
+    * Description: Tests a valid email while requesting password reset
+    */
+
     it('Valid Sent Email', async () => {
         const res = await request(app)
             .post('/requestReset')
@@ -127,6 +174,12 @@ describe('Request Reset Routes', () => {
         expect(emailjs.send).toHaveBeenCalled();
     });
 
+    /* 
+    * Test Name: Invalid Email In Password Request
+    * Unit Test ID: SUT9
+    * Description: Tests an invalid email while requesting password reset
+    */
+
     it('Email doesnt exist test', async () => {
         const res = await request(app)
             .post('/requestReset')
@@ -134,6 +187,12 @@ describe('Request Reset Routes', () => {
         expect(res.statusCode).toEqual(404);
         expect(res.body).toEqual({ message: 'Email not found' });
     });
+
+    /* 
+    * Test Name: EmailJS Error handling
+    * Unit Test ID: SUT10
+    * Description: Tests for when EmailJS is unable to respond
+    */
 
     it('emailJS server error test', async () => {
         const res = await request(app)
@@ -157,6 +216,12 @@ describe('Verify Code Routes', () => {
         await pool.query("DELETE FROM users WHERE username = 'test'");
     });
 
+    /* 
+    * Test Name: Valid Verification Code
+    * Unit Test ID: SUT11
+    * Description: Tests a valid verification code against the server
+    */
+
     it('Valid Verification Code', async () => {
         const res = await request(app)
             .post('/verifyCode')
@@ -165,6 +230,12 @@ describe('Verify Code Routes', () => {
         expect(res.body).toEqual({ message: 'Verification successful' });
     });
 
+    /* 
+    * Test Name: Incorrect Verification Code
+    * Unit Test ID: SUT12
+    * Description: Tests for response from server with an invalid code
+    */
+
     it('Incorrect Verification Code', async () => {
         const res = await request(app)
             .post('/verifyCode')
@@ -172,6 +243,12 @@ describe('Verify Code Routes', () => {
         expect(res.statusCode).toEqual(400);
         expect(res.body).toEqual({ message: 'Verification code incorrect' });
     });
+
+    /* 
+    * Test Name: Verify Code Error Handling
+    * Unit Test ID: SUT13
+    * Description: Tests errors during verification code processing
+    */
 
     it('Verification Code Server Error', async () => {
         const res = await request(app)
@@ -194,6 +271,12 @@ describe('POST /resetPassword', () => {
         await pool.query("DELETE FROM users WHERE username = 'test'");
     });
 
+    /* 
+    * Test Name: Successful password rese
+    * Unit Test ID: SUT14
+    * Description: Tests for successful password reset in /resetPassword
+    */
+
     it('should return 200 and reset the password if the email is correct', async () => {
         const res = await request(app)
             .post('/resetPassword')
@@ -206,6 +289,12 @@ describe('POST /resetPassword', () => {
         const match = await bcrypt.compare('newpassword', user.password);
         expect(match).toBe(true);
     });
+
+    /* 
+    * Test Name: Reset Password Error handling
+    * Unit Test ID: SUT15
+    * Description: Tests errors during reset password processing
+    */
 
     it('should return 500 if there is a server error', async () => {
         const res = await request(app)
