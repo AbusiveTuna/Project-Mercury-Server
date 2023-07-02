@@ -272,7 +272,7 @@ describe('POST /resetPassword', () => {
     });
 
     /* 
-    * Test Name: Successful password rese
+    * Test Name: Successful password reset
     * Unit Test ID: SUT14
     * Description: Tests for successful password reset in /resetPassword
     */
