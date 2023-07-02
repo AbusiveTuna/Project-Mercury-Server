@@ -17,4 +17,6 @@ app.use(express.json());
 
 app.use(routes);
 
+module.exports = app; // Add this line to export your app
+
 app.listen(port, () => console.log(`Listening on port ${port}`));
