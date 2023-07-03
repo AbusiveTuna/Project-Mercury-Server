@@ -7,6 +7,12 @@ const validator = require('validator');
 
 router.get('/', (req, res) => res.send('Hello World!'));
 
+/*
+ * validateUserInput
+ * Validates and Sanitizes user input
+ * Usernames must be at least 3 characters, Passwords must be at least 8
+ * Returns: Sanitized User Input
+*/
 function validateUserInput(username,password,email,birthdate){
 
   if (!validator.isEmail(email)) {
@@ -35,6 +41,11 @@ function validateUserInput(username,password,email,birthdate){
   };
 }
 
+/*
+ * Route: addUser
+ * Creates a new user account in the database
+ * Returns: 200 on a successfully created account
+*/
 router.post('/addUser', async (req, res) => {
   let { username, password, email, birthdate } = req.body;
 
@@ -57,6 +68,11 @@ router.post('/addUser', async (req, res) => {
   }
 });
 
+/*
+ * Route: login
+ * Handles user authentication for logging in
+ * Returns: 200 on valid credientials
+*/
 router.post('/login', async (req, res) => {
     let { username, password } = req.body;
   
@@ -85,6 +101,12 @@ router.post('/login', async (req, res) => {
     }
 });
 
+
+/*
+ * Route: checkUsernameAvailability
+ * Queries the database to see if the username is already taken. 
+ * Returns: a message letting the user know if the username is available or not. 
+*/
 router.get('/checkUsernameAvailability/:username', async (req, res) => {
   let { username } = req.params;
   try {
@@ -101,6 +123,12 @@ router.get('/checkUsernameAvailability/:username', async (req, res) => {
   }
 });
 
+/*
+ * Route: requestReset
+ * Process to handle user's resetting their password.
+ * Checks the users email exists, and sends them an email with a 6 digit verification code
+ * Returns: A 200 indicting to go to the next page. 
+*/
 router.post('/requestReset', async (req, res) => {
   let { email } = req.body;
 
@@ -142,6 +170,12 @@ router.post('/requestReset', async (req, res) => {
   }
 });
 
+/*
+ * Route: requestReset
+ * Process to check user successfully enter correct verification code
+ * Looks to see if the code is correct, and that 10 minutes have not past. 
+ * Returns: A 200 indicting to go to the next page. 
+*/
 router.post('/verifyCode', async (req, res) => {
   let { email, code } = req.body;
   try {
@@ -174,6 +208,10 @@ router.post('/verifyCode', async (req, res) => {
   }
 });
 
+/*
+ * Route: resetPassword
+ * Changes User's passwords after successful verification
+*/
 router.post('/resetPassword', async (req, res) => {
   let { email, newPassword } = req.body;
 
