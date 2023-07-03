@@ -11,7 +11,6 @@ const createTables = async () => {
         birthdate DATE NOT NULL
       );
     `);
-    console.log('Users table successfully created');
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS password_reset (
@@ -21,7 +20,6 @@ const createTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('Password reset table successfully created');
   } catch (err) {
     console.error(err);
   }
