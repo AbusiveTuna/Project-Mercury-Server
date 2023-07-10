@@ -232,4 +232,24 @@ router.post('/resetPassword', async (req, res) => {
   }
 });
 
+/*
+ *
+ *
+*/
+router.post('/storeDexcomTokens', async (req, res) => {
+  const { user_id, access_token, refresh_token } = req.body;
+
+  try {
+    await pool.query(
+      'INSERT INTO dexcom_tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)',
+      [user_id, access_token, refresh_token]
+    );
+    res.status(200).json({ message: 'Tokens stored successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'An error occurred while storing the tokens' });
+  }
+});
+
+
 module.exports = router;
