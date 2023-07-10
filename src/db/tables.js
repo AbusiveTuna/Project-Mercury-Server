@@ -20,6 +20,16 @@ const createTables = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS dexcom_tokens (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        access_token VARCHAR(255) NOT NULL,
+        refresh_token VARCHAR(255) NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      );
+    `);
   } catch (err) {
     console.error(err);
   }
