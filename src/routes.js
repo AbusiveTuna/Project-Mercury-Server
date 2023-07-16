@@ -254,6 +254,9 @@ router.post('/exchangeCode', async (req, res) => {
       },
       body: new URLSearchParams(body),
     });
+    console.log("id" + process.env.DEXCOM_CLIENT_ID);
+    console.log("secret" + process.env.DEXCOM_SECRET);
+    
     console.log("API Respnse" + response);
 
     const data = await response.json();
