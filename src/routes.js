@@ -254,11 +254,15 @@ router.post('/exchangeCode', async (req, res) => {
       },
       body: new URLSearchParams(body),
     });
+    console.log("API Respnse" + response);
 
     const data = await response.json();
+    console.log('Parsed data:', data);
+
 
     const { access_token, refresh_token } = data;
-
+    console.log('Access token:', access_token);
+    console.log('Refresh token:', refresh_token);
     await pool.query(
       'INSERT INTO dexcom_tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)',
       [user_id, access_token, refresh_token]
