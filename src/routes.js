@@ -236,20 +236,42 @@ router.post('/resetPassword', async (req, res) => {
  *
  *
 */
-router.post('/storeDexcomTokens', async (req, res) => {
-  const { user_id, access_token, refresh_token } = req.body;
+router.post('/exchangeCode', async (req, res) => {
+  const { code, user_id } = req.body;
 
+  const body = {
+    client_id: process.env.DEXCOM_CLIENT_ID,
+    client_secret: process.env.DEXCOM_SECRET,
+    code,
+    grant_type: 'authorization_code',
+    redirect_uri: 'Https://ProjectsMercury.com/dexcomRedirect',
+  };
   try {
+    const response = await fetch('https://api.dexcom.com/v2/oauth2/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(body),
+    });
+
+    const data = await response.json();
+
+    const { access_token, refresh_token } = data;
+
     await pool.query(
       'INSERT INTO dexcom_tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)',
       [user_id, access_token, refresh_token]
     );
-    res.status(200).json({ message: 'Tokens stored successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'An error occurred while storing the tokens' });
+
+    res.status(200).json({ message: 'Tokens exchanged and stored successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to exchange code' });
   }
 });
+
+
 
 
 module.exports = router;
