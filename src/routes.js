@@ -247,7 +247,7 @@ router.post('/exchangeCode', async (req, res) => {
     redirect_uri: 'Https://ProjectsMercury.com/dexcomRedirect',
   };
   try {
-    const response = await fetch('https://api.dexcom.com/v2/oauth2/token', {
+    const response = await fetch('https://sandbox-api.dexcom.com/v2/oauth2/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -263,12 +263,16 @@ router.post('/exchangeCode', async (req, res) => {
     const { access_token, refresh_token } = data;
     console.log('Access token:', access_token);
     console.log('Refresh token:', refresh_token);
-    await pool.query(
-      'INSERT INTO dexcom_tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)',
-      [user_id, access_token, refresh_token]
-    );
-
-    res.status(200).json({ message: 'Tokens exchanged and stored successfully' });
+    if (access_token && refresh_token) {
+      await pool.query(
+        'INSERT INTO dexcom_tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)',
+        [user_id, access_token, refresh_token]
+      );
+      res.status(200).json({ message: 'Tokens exchanged and stored successfully' });
+    } else {
+      console.error("Failed to exchange code: No access or refresh token received");
+      res.status(500).json({ error: 'Failed to exchange code: No access or refresh token received' });
+    }    
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to exchange code' });
