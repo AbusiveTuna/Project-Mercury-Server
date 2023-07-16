@@ -21,8 +21,6 @@ const createTables = async () => {
       );
     `);
 
-    await pool.query(`DROP TABLE IF EXISTS dexcom_tokens;`);
-    
     await pool.query(`
     CREATE TABLE IF NOT EXISTS dexcom_tokens (
       id SERIAL PRIMARY KEY,
