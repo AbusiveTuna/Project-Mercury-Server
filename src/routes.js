@@ -300,7 +300,9 @@ router.get('/getDexcomData/:userId', async (req, res) => {
 });
 
 async function getDexcomData(accessToken, refreshToken, userId) {
-  const date = new Date().toISOString();
+  const now = new Date();
+  const date = now.toISOString().split('.')[0];
+
 
   try {
     const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${date}&endDate=${date}`, {
