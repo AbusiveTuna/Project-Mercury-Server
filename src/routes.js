@@ -325,7 +325,7 @@ async function getDexcomData(accessToken, refreshToken, userId) {
 
   try {
     //  const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${formattedStartTime}&endDate=${formattedCurrentTime}`, {
-      const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/dataRange?lastSyncTime=${formattedCurrentTime}`, {
+      const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/dataRange?lastSynccTime=${formattedCurrentTime}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`
