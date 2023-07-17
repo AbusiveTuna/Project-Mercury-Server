@@ -309,10 +309,11 @@ async function getDexcomData(accessToken, refreshToken, userId) {
   // Convert them to the required string format
   const formattedCurrentTime = currentTime.toISOString().split('.')[0];
   const formattedStartTime = startTime.toISOString().split('.')[0];
-
+  console.log(formattedStartTime);
 
   try {
-    const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${formattedStartTime}&endDate=${formattedCurrentTime}`, {
+    //  const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${formattedStartTime}&endDate=${formattedCurrentTime}`, {
+      const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/dataRange?lastSyncTime=${formattedCurrentTime}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`
