@@ -303,7 +303,7 @@ async function getDexcomData(accessToken, refreshToken, userId) {
   const date = new Date().toISOString();
 
   try {
-    const response = await fetch(`https://api.dexcom.com/v3/users/self/egvs?startDate=${date}&endDate=${date}`, {
+    const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${date}&endDate=${date}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`
