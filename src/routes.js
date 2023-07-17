@@ -304,7 +304,7 @@ async function getDexcomData(accessToken, refreshToken, userId) {
   const currentTime = new Date();
 
   // Get date and time for 3 hours earlier
-  const startTime = new Date(currentTime.getTime() - 3 * 60 * 60 * 1000);
+  const startTime = new Date(endDate.getTime() - 3 * 24 * 60 * 60 * 1000);
 
   // Convert them to the required string format
   const formattedCurrentTime = currentTime.toISOString().split('.')[0];
