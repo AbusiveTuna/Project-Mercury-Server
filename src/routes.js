@@ -301,15 +301,27 @@ router.get('/getDexcomData/:userId', async (req, res) => {
 
 async function getDexcomData(accessToken, refreshToken, userId) {
 
-  const currentTime = new Date();
+  // const currentTime = new Date();
 
-  // Get date and time for 3 hours earlier
-  const startTime = new Date(currentTime.getTime() - 3 * 24 * 60 * 60 * 1000);
+  // // Get date and time for 3 hours earlier
+  // const startTime = new Date(currentTime.getTime() - 3 * 24 * 60 * 60 * 1000);
 
-  // Convert them to the required string format
-  const formattedCurrentTime = currentTime.toISOString().split('.')[0];
-  const formattedStartTime = startTime.toISOString().split('.')[0];
-  console.log(formattedStartTime);
+  // // Convert them to the required string format
+  // const formattedCurrentTime = currentTime.toISOString().split('.')[0];
+  // const formattedStartTime = startTime.toISOString().split('.')[0];
+  // console.log(formattedStartTime);
+
+  const date = new Date();
+  const formattedCurrentTime = date.toISOString().replace('Z', '') + getTimezoneOffset(date);
+
+  function getTimezoneOffset(date) {
+    const offset = date.getTimezoneOffset();
+    const sign = offset < 0 ? '+' : '-';
+    const hours = Math.floor(Math.abs(offset) / 60).toString().padStart(2, '0');
+    const minutes = (Math.abs(offset) % 60).toString().padStart(2, '0');
+    return `${sign}${hours}:${minutes}`;
+}
+
 
   try {
     //  const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${formattedStartTime}&endDate=${formattedCurrentTime}`, {
