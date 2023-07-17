@@ -300,12 +300,19 @@ router.get('/getDexcomData/:userId', async (req, res) => {
 });
 
 async function getDexcomData(accessToken, refreshToken, userId) {
-  const now = new Date();
-  const date = now.toISOString().split('.')[0];
+
+  const currentTime = new Date();
+
+  // Get date and time for 3 hours earlier
+  const startTime = new Date(currentTime.getTime() - 3 * 60 * 60 * 1000);
+
+  // Convert them to the required string format
+  const formattedCurrentTime = currentTime.toISOString().split('.')[0];
+  const formattedStartTime = startTime.toISOString().split('.')[0];
 
 
   try {
-    const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${date}&endDate=${date}`, {
+    const response = await fetch(`https://sandbox-api.dexcom.com/v3/users/self/egvs?startDate=${formattedStartTime}&endDate=${formattedCurrentTime}`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${accessToken}`
