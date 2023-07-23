@@ -9,9 +9,10 @@ const routes = require('./routes');
 tables();
 
 app.use(cors({
-    origin: 'https://projectsmercury.com',
+    origin: ['https://projectsmercury.com', 'http://localhost:3000'],
     optionsSuccessStatus: 200
 }));
+
 
 app.use(express.json());
 
