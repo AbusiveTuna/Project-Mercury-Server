@@ -9,7 +9,7 @@ const routes = require('./routes');
 tables();
 
 app.use(cors({
-    origin: ['https://projectsmercury.com', 'http://localhost:3000'],
+    origin: ['https://projectsmercury.com'],
     optionsSuccessStatus: 200
 }));
 
