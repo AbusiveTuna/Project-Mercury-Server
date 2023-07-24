@@ -6,6 +6,7 @@ const tables = require('./db/tables');
 const loginRoutes = require('./routes/loginRoutes');
 const dexcomRoutes = require('./routes/dexcomRoutes');
 const hueRoutes = require('./routes/hueRoutes');
+const userSettingsRoutes = require('./routes/userSettingsRoutes');
 
 //ensure database tables are created
 tables();
