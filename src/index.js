@@ -3,7 +3,8 @@ const app = express();
 const port = process.env.PORT || 3000;
 const cors = require('cors');
 const tables = require('./db/tables');
-const routes = require('./routes');
+const loginRoutes = require('./routes/loginRoutes');
+const dexcomRoutes = require('./routes/dexcomRoutes');
 
 //ensure database tables are created
 tables();
@@ -13,10 +14,10 @@ app.use(cors({
     optionsSuccessStatus: 200
 }));
 
-
 app.use(express.json());
 
-app.use(routes);
+app.use(loginRoutes);
+app.use(dexcomRoutes);
 
 module.exports = app;
 
