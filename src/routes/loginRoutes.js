@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const pool = require('./db/db');
+const pool = require('../db/db');
 const emailjs = require('@emailjs/nodejs');
 const validator = require('validator');
 
