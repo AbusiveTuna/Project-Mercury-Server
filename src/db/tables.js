@@ -2,6 +2,7 @@ const pool = require('./db');
 
 const createTables = async () => {
   try {
+    
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -30,6 +31,17 @@ const createTables = async () => {
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
   `);  
+    
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS user_settings (
+          id SERIAL PRIMARY KEY,
+          user_id INTEGER NOT NULL,
+          high_threshold INTEGER NOT NULL,
+          low_threshold INTEGER NOT NULL,
+          FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+      `);
+    
   } catch (err) {
     console.error(err);
   }
