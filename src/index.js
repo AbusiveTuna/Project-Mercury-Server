@@ -5,6 +5,7 @@ const cors = require('cors');
 const tables = require('./db/tables');
 const loginRoutes = require('./routes/loginRoutes');
 const dexcomRoutes = require('./routes/dexcomRoutes');
+const hueRoutes = require('./routes/hueRoutes');
 
 //ensure database tables are created
 tables();
@@ -18,6 +19,7 @@ app.use(express.json());
 
 app.use(loginRoutes);
 app.use(dexcomRoutes);
+app.use(hueRoutes);
 
 module.exports = app;
 
