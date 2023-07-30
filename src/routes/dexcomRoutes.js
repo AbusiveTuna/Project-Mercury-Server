@@ -205,6 +205,25 @@ router.get('/devices/:userId', async (req, res) => {
   }
 });
 
+router.delete('/removeSensor/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const result = await pool.query('DELETE FROM dexcom_tokens WHERE user_id = $1', [userId]);
+
+    if (result.rowCount > 0) {
+      res.status(200).json({ message: 'Dexcom sensor information deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'No Dexcom sensor information found for this user' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
 
 module.exports = router;
 
