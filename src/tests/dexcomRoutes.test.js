@@ -18,6 +18,12 @@ jest.mock('../db/db', () => ({
 }));
 
 describe('GET /devices/:userId', () => {
+
+  /* 
+  * Test Name: Device Data Returned
+  * Unit Test ID: SUT20
+  * Description: Tests grabbing Device Data from dexcom
+  */
   it('should return device data', async () => {
     global.fetch.mockImplementationOnce(() =>
       Promise.resolve({
@@ -32,6 +38,11 @@ describe('GET /devices/:userId', () => {
     expect(res.body).toEqual([]);
   });
 
+  /* 
+  * Test Name: Refresh Dexcom Tokens
+  * Unit Test ID: SUT21
+  * Description: Tests refreshing Dexcom Tokens
+  */
   it('should refresh token and retry if access token expired', async () => {
     global.fetch.mockImplementationOnce(() =>
       Promise.resolve({
@@ -57,7 +68,11 @@ describe('GET /devices/:userId', () => {
     expect(res.body).toEqual([]);
   });
   
-
+  /* 
+  * Test Name: Refresh token failure
+  * Unit Test ID: SUT22
+  * Description: Tests failure to refresh token
+  */
   it('should return 500 if token refresh failed', async () => {
     global.fetch.mockImplementationOnce(() =>
       Promise.resolve({
@@ -78,6 +93,12 @@ describe('GET /devices/:userId', () => {
 });
 
 describe('DELETE /removeSensor/:userId', () => {
+
+  /* 
+  * Test Name: Delete Sensor from User Account
+  * Unit Test ID: SUT23
+  * Description: Tests successful deletion of sensor from user account
+  */
   it('should delete sensor data', async () => {
     pool.query.mockResolvedValue({ rowCount: 1 });
 
@@ -88,6 +109,11 @@ describe('DELETE /removeSensor/:userId', () => {
     expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
+  /* 
+  * Test Name: No sensor data found
+  * Unit Test ID: SUT24
+  * Description: Tests failure to find sensor data
+  */
   it('should return 404 if no sensor data is found', async () => {
     pool.query.mockResolvedValue({ rowCount: 0 });
 
@@ -98,6 +124,11 @@ describe('DELETE /removeSensor/:userId', () => {
     expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
+  /* 
+  * Test Name: Failure to delete sensor data
+  * Unit Test ID: SUT25
+  * Description: Tests failure to delete sensor data
+  */
   it('should return 500 if an error occurs', async () => {
     pool.query.mockImplementationOnce(() =>
       Promise.reject(new Error('Database error'))
@@ -112,6 +143,11 @@ describe('DELETE /removeSensor/:userId', () => {
 
   describe('GET /getDexcomData/:userId', () => {
   
+    /* 
+    * Test Name: Dexcom Token Return
+    * Unit Test ID: SUT26
+    * Description: Tests successful return of Dexcom token
+    */
     it('should return Dexcom data if tokens are found for the user', async () => {
       global.fetch.mockImplementationOnce(() =>
         Promise.resolve({
@@ -130,6 +166,11 @@ describe('DELETE /removeSensor/:userId', () => {
 
   describe('POST /exchangeCode', () => {
   
+    /* 
+    * Test Name: Exchange Code Error
+    * Unit Test ID: SUT27
+    * Description: Tests failure to exchange code
+    */
     it('should return 500 if no access or refresh token is received', async () => {
       global.fetch.mockImplementationOnce(() =>
         Promise.resolve({
@@ -145,6 +186,11 @@ describe('DELETE /removeSensor/:userId', () => {
       expect(res.body).toEqual({ error: 'Failed to exchange code: No access or refresh token received' });
     });
   
+    /* 
+    * Test Name: Exchange code fetching error
+    * Unit Test ID: SUT28
+    * Description: Tests failure to fetch code
+    */
     it('should return 500 if an error occurs during fetching', async () => {
       global.fetch.mockImplementationOnce(() =>
         Promise.reject(new Error('Fetch error'))

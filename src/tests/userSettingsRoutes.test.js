@@ -31,6 +31,12 @@ afterAll(async () => {
 });
 
 describe('GET /getUserSettings/:userId', () => {
+
+  /* 
+  * Test Name: User Thresholds
+  * Unit Test ID: SUT16
+  * Description: Tests getting user thresholds
+  */
   test('should return user settings', async () => {
     const response = await request(app).get(`/getUserSettings/${testUser.id}`);
     expect(response.statusCode).toBe(200);
@@ -38,6 +44,11 @@ describe('GET /getUserSettings/:userId', () => {
     expect(response.body).toHaveProperty('low_threshold', 70);
   });
 
+  /* 
+  * Test Name: No settings test
+  * Unit Test ID: SUT17
+  * Description: Tests if the user has no settings
+  */
   test('should return 404 if user settings not found', async () => {
     const response = await request(app).get('/getUserSettings/9999');
     expect(response.statusCode).toBe(404);
@@ -46,6 +57,12 @@ describe('GET /getUserSettings/:userId', () => {
 });
 
 describe('POST /updateUserSettings/:userId', () => {
+
+  /* 
+  * Test Name: Update User Settings
+  * Unit Test ID: SUT18
+  * Description: Tests updating user settings
+  */
   test('should update user settings', async () => {
     const response = await request(app)
       .post(`/updateUserSettings/${testUser.id}`)
@@ -55,6 +72,11 @@ describe('POST /updateUserSettings/:userId', () => {
     expect(response.body).toHaveProperty('low_threshold', 60);
   });
 
+  /* 
+  * Test Name: Invalid Settings Update
+  * Unit Test ID: SUT19
+  * Description: Test updating when there are no valid settings
+  */
   test('should return 404 if user settings not found', async () => {
     const response = await request(app)
       .post('/updateUserSettings/9999')
