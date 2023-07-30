@@ -148,5 +148,63 @@ async function refreshDexcomToken(refreshToken, userId) {
   }
 }
 
+router.get('/devices/:userId', async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Get the user's access and refresh tokens from the database
+    const result = await pool.query('SELECT * FROM dexcom_tokens WHERE user_id = $1', [userId]);
+
+    if (result.rows.length > 0) {
+      const { access_token, refresh_token } = result.rows[0];
+
+      const response = await fetch('https://sandbox-api.dexcom.com/v3/users/self/devices', {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${access_token}`
+        }
+      });
+
+      if (response.status === 401) {
+        // Access token expired, refresh it
+        const refreshedToken = await refreshDexcomToken(refresh_token, userId);
+
+        if (refreshedToken.error) {
+          res.status(500).json({ message: 'Failed to refresh Dexcom token', error: refreshedToken.error });
+        } else {
+          // Retry the Dexcom API call with the new access token
+          const retryResponse = await fetch('https://sandbox-api.dexcom.com/v3/users/self/devices', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${refreshedToken}`
+            }
+          });
+          const data = await retryResponse.json();
+          const parsedData = data.records.map(record => ({
+            transmitterGeneration: record.transmitterGeneration,
+            displayDevice: record.displayDevice,
+            lastUploadDate: record.lastUploadDate
+          }));
+          res.json(parsedData);
+        }
+      } else {
+        const data = await response.json();
+        const parsedData = data.records.map(record => ({
+          transmitterGeneration: record.transmitterGeneration,
+          displayDevice: record.displayDevice,
+          lastUploadDate: record.lastUploadDate
+        }));
+        res.json(parsedData);
+      }
+    } else {
+      res.status(404).json({ message: 'No Dexcom tokens found for this user' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
 module.exports = router;
 
