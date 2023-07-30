@@ -31,11 +31,9 @@ router.post('/exchangeCode', async (req, res) => {
       );
       res.status(200).json({ message: 'Tokens exchanged and stored successfully' });
     } else {
-      console.error("Failed to exchange code: No access or refresh token received");
       res.status(500).json({ error: 'Failed to exchange code: No access or refresh token received' });
     }    
   } catch (error) {
-    console.error(error);
     res.status(500).json({ error: 'Failed to exchange code' });
   }
 });
@@ -60,7 +58,6 @@ router.get('/getDexcomData/:userId', async (req, res) => {
       res.status(404).json({ message: 'No Dexcom tokens found for this user' });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).send('Server error');
   }
 });
@@ -103,7 +100,6 @@ async function getDexcomData(accessToken, refreshToken, userId) {
       return data;
     }
   } catch (error) {
-    console.error(error);
     return { error: 'Failed to fetch Dexcom data' };
   }
 }
@@ -139,11 +135,9 @@ async function refreshDexcomToken(refreshToken, userId) {
 
       return access_token;
     } else {
-      console.error('Failed to refresh Dexcom token: No access token received');
       return { error: 'Failed to refresh Dexcom token: No access token received' };
     }
   } catch (error) {
-    console.error(error);
     return { error: 'Failed to refresh Dexcom token' };
   }
 }
@@ -200,7 +194,6 @@ router.get('/devices/:userId', async (req, res) => {
       res.status(404).json({ message: 'No Dexcom tokens found for this user' });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).send('Server error');
   }
 });
@@ -217,7 +210,6 @@ router.delete('/removeSensor/:userId', async (req, res) => {
       res.status(404).json({ message: 'No Dexcom sensor information found for this user' });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).send('Server error');
   }
 });
