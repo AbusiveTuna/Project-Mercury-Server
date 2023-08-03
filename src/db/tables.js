@@ -42,16 +42,17 @@ const createTables = async () => {
         );
       `);
 
-        await pool.query(`
-      CREATE TABLE IF NOT EXISTS hue_tokens (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL,
-        username TEXT NOT NULL, 
-        clientkey TEXT NOT NULL,
-        FOREIGN KEY (user_id) REFERENCES users(id)
-      );
-    `);
-    
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hue_tokens (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER NOT NULL,
+      username TEXT NOT NULL, 
+      clientkey TEXT NOT NULL,
+      ip_address TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id)
+    );
+  `);
+
   } catch (err) {
     console.error(err);
   }
