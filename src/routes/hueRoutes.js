@@ -4,8 +4,7 @@ const pool = require('../db/db');
 
 router.post('/hueAuth', async (req, res) => {
   try {
-    const { ipAddress } = req.body;
-
+    const { ipAddress, user_id } = req.body;
     const url = `https://${ipAddress}/api`;
     const body = {
       devicetype: 'app_name#instance_name',
@@ -20,6 +19,12 @@ router.post('/hueAuth', async (req, res) => {
       res.status(400).json({ message: 'Link Button not pressed on bridge' });
       return;
     }
+    const username = data[0].success.username;
+    const clientkey = data[0].success.clientkey;
+    await pool.query(
+      'INSERT INTO hue_tokens (user_id, username, clientkey) VALUES ($1, $2, $3)',
+      [user_id, username, clientkey]
+    );
     res.json({ message: 'Authenticated successfully' });
   } catch (err) {
     console.error(err.message);
