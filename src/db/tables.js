@@ -52,6 +52,18 @@ const createTables = async () => {
       FOREIGN KEY (user_id) REFERENCES users(id)
     );
   `);
+    
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS hue_lights (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL,
+  lightname TEXT NOT NULL,
+  rid TEXT NOT NULL,
+  rtype TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+`);
+
 
   } catch (err) {
     console.error(err);
