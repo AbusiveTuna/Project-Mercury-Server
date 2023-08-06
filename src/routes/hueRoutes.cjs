@@ -1,11 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const v3 = require('node-hue-api').v3
-  , discovery = v3.discovery
-  , hueApi = v3.api 
-;
-const LightState = v3.lightStates.LightState;
-
+const fetch = require('node-fetch');
 let pool;
 
 import('../db/db.js').then(db => {
@@ -45,38 +40,38 @@ router.get('/getHueTokens/:userId', async (req, res) => {
   }
 });
 
-router.post('/updateHueDevices/:userId', async (req, res) => {
-  try {
-    const { userId } = req.params;
-    const tokenResult = await pool.query('SELECT * FROM hue_tokens WHERE user_id = $1', [userId]);
-    if (tokenResult.rows.length === 0) {
-      res.status(400).json({ message: 'No Hue tokens found for this user' });
-      return;
-    }
-    const { ip_address, username } = tokenResult.rows[0];
+// router.post('/updateHueDevices/:userId', async (req, res) => {
+//   try {
+//     const { userId } = req.params;
+//     const tokenResult = await pool.query('SELECT * FROM hue_tokens WHERE user_id = $1', [userId]);
+//     if (tokenResult.rows.length === 0) {
+//       res.status(400).json({ message: 'No Hue tokens found for this user' });
+//       return;
+//     }
+//     const { ip_address, username } = tokenResult.rows[0];
 
-    // Create a new API instance
-    const api = await v3.api.createLocal(ip_address).connect(username);
+//     // Create a new API instance
+//     const api = await v3.api.createLocal(ip_address).connect(username);
 
-    // Get all lights
-    const lights = await api.lights.getAll();
+//     // Get all lights
+//     const lights = await api.lights.getAll();
 
-    // Update the database with the light details
-    await Promise.all(
-      lights.map((light) =>
-        pool.query(
-          'INSERT INTO hue_lights (user_id, lightname, rid, rtype) VALUES ($1, $2, $3, $4) ON CONFLICT (rid) DO UPDATE SET lightname=$2, rtype=$4',
-          [userId, light.name, light.id, 'Light']
-        )
-      )
-    );
+//     // Update the database with the light details
+//     await Promise.all(
+//       lights.map((light) =>
+//         pool.query(
+//           'INSERT INTO hue_lights (user_id, lightname, rid, rtype) VALUES ($1, $2, $3, $4) ON CONFLICT (rid) DO UPDATE SET lightname=$2, rtype=$4',
+//           [userId, light.name, light.id, 'Light']
+//         )
+//       )
+//     );
 
-    res.json({ message: 'Device list updated successfully' });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+//     res.json({ message: 'Device list updated successfully' });
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
 
 router.get('/getHueDevices/:userId', async (req, res) => {
   try {
@@ -88,18 +83,22 @@ router.get('/getHueDevices/:userId', async (req, res) => {
     }
     const { ip_address, username } = tokenResult.rows[0];
 
-    // Create a new API instance
+    // Construct the URL
+    const url = `http://${ip_address}/api/${username}/lights`;
 
-    const authenticatedApi = await hueApi.createLocal(ip_address).connect(username);
+    // Make the HTTP request using fetch
+    const response = await fetch(url);
 
-    // Do something with the authenticated user/api
-    const bridgeConfig = await authenticatedApi.configuration.getConfiguration();
-    console.log(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
-    // Get all lights
-    const lights = await authenticatedApi.lights.getAll();
+    // Check if the request was successful
+    if (!response.ok) {
+      throw new Error('Request failed with status ' + response.status);
+    }
+
+    // Parse the JSON response
+    const lights = await response.json();
 
     // Extract the light names
-    const devices = lights.map((light) => light.name);
+    const devices = Object.values(lights).map((light) => light.name);
 
     res.json(devices);
   } catch (err) {
@@ -109,43 +108,43 @@ router.get('/getHueDevices/:userId', async (req, res) => {
 });
 
 
-router.post('/toggleHueLight', async (req, res) => {
-  try {
-    const { user_id, lightname, on } = req.body;
-    const result = await pool.query(
-      'SELECT * FROM hue_lights WHERE lightname = $1 AND user_id = $2',
-      [lightname, user_id]
-    );
-    if (result.rows.length === 0) {
-      res.status(400).json({ message: 'No Hue light found for this user' });
-      return;
-    }
-    const { rid } = result.rows[0];
-    const tokenResult = await pool.query(
-      'SELECT * FROM hue_tokens WHERE user_id = $1',
-      [user_id]
-    );
-    if (tokenResult.rows.length === 0) {
-      res.status(400).json({ message: 'No Hue tokens found for this user' });
-      return;
-    }
-    const { ip_address, username } = tokenResult.rows[0];
+// router.post('/toggleHueLight', async (req, res) => {
+//   try {
+//     const { user_id, lightname, on } = req.body;
+//     const result = await pool.query(
+//       'SELECT * FROM hue_lights WHERE lightname = $1 AND user_id = $2',
+//       [lightname, user_id]
+//     );
+//     if (result.rows.length === 0) {
+//       res.status(400).json({ message: 'No Hue light found for this user' });
+//       return;
+//     }
+//     const { rid } = result.rows[0];
+//     const tokenResult = await pool.query(
+//       'SELECT * FROM hue_tokens WHERE user_id = $1',
+//       [user_id]
+//     );
+//     if (tokenResult.rows.length === 0) {
+//       res.status(400).json({ message: 'No Hue tokens found for this user' });
+//       return;
+//     }
+//     const { ip_address, username } = tokenResult.rows[0];
 
-    // Create a new API instance
-    const api = await v3.api.createLocal(ip_address).connect(username);
+//     // Create a new API instance
+//     const api = await v3.api.createLocal(ip_address).connect(username);
 
-    // Create a new light state
-    const lightState = new LightState().on(on);
+//     // Create a new light state
+//     const lightState = new LightState().on(on);
 
-    // Set the light state
-    await api.lights.setLightState(rid, lightState);
+//     // Set the light state
+//     await api.lights.setLightState(rid, lightState);
 
-    res.json({ message: `Light ${on ? 'turned on' : 'turned off'} successfully` });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Server error');
-  }
-});
+//     res.json({ message: `Light ${on ? 'turned on' : 'turned off'} successfully` });
+//   } catch (err) {
+//     console.error(err.message);
+//     res.status(500).send('Server error');
+//   }
+// });
 
 
 module.exports = router;
