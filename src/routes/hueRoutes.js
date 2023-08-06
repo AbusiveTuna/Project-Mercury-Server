@@ -5,7 +5,9 @@ import fetch from 'node-fetch';
 
 router.post('/hueAuth', async (req, res) => {
   try {
+    console.log(req.body);
     const { ipAddress, user_id } = req.body;
+    console.log(ipAddress, user_id);
     const url = `https://${ipAddress}/api`;
     const body = {
       devicetype: 'projectmercury#webportal',
