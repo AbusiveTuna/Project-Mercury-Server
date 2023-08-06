@@ -88,7 +88,8 @@ router.get('/getHueDevices/:userId', async (req, res) => {
     // Create a new API instance
     console.log(ip_address, username);
     const api = await v3.api.createLocal(ip_address).connect(username);
-
+    const bridgeConfig = await api.configuration.getConfiguration();
+    console.log(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
     // Get all lights
     const lights = await api.lights.getAll();
 
