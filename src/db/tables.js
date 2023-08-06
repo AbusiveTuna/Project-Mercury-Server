@@ -1,4 +1,4 @@
-const pool = require('./db');
+import pool from './db';
 
 const createTables = async () => {
   try {
@@ -70,4 +70,4 @@ const createTables = async () => {
   }
 };
 
-module.exports = createTables;
+export default createTables;

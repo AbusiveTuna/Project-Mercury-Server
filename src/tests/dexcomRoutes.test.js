@@ -1,10 +1,10 @@
-const request = require('supertest');
-const express = require('express');
-const router = require('../routes/dexcomRoutes');
-const pool = require('../db/db');
+import request from 'supertest';
+import express, { json as _json } from 'express';
+import router from '../routes/dexcomRoutes';
+import { query as _query } from '../db/db';
 
 const app = express();
-app.use(express.json());
+app.use(_json());
 app.use('/', router);
 
 global.fetch = jest.fn(() =>
@@ -100,13 +100,13 @@ describe('DELETE /removeSensor/:userId', () => {
   * Description: Tests successful deletion of sensor from user account
   */
   it('should delete sensor data', async () => {
-    pool.query.mockResolvedValue({ rowCount: 1 });
+    _query.mockResolvedValue({ rowCount: 1 });
 
     const res = await request(app).delete('/removeSensor/userId');
 
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual({ message: 'Dexcom sensor information deleted successfully' });
-    expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+    expect(_query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
   /* 
@@ -115,13 +115,13 @@ describe('DELETE /removeSensor/:userId', () => {
   * Description: Tests failure to find sensor data
   */
   it('should return 404 if no sensor data is found', async () => {
-    pool.query.mockResolvedValue({ rowCount: 0 });
+    _query.mockResolvedValue({ rowCount: 0 });
 
     const res = await request(app).delete('/removeSensor/userId');
 
     expect(res.statusCode).toEqual(404);
     expect(res.body).toEqual({ message: 'No Dexcom sensor information found for this user' });
-    expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+    expect(_query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
   /* 
@@ -130,7 +130,7 @@ describe('DELETE /removeSensor/:userId', () => {
   * Description: Tests failure to delete sensor data
   */
   it('should return 500 if an error occurs', async () => {
-    pool.query.mockImplementationOnce(() =>
+    _query.mockImplementationOnce(() =>
       Promise.reject(new Error('Database error'))
     );
 
@@ -138,7 +138,7 @@ describe('DELETE /removeSensor/:userId', () => {
 
     expect(res.statusCode).toEqual(500);
     expect(res.text).toEqual('Server error');
-    expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+    expect(_query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
   describe('GET /getDexcomData/:userId', () => {
@@ -160,7 +160,7 @@ describe('DELETE /removeSensor/:userId', () => {
   
       expect(res.statusCode).toEqual(200);
       expect(res.body).toEqual({ data: 'data' });
-      expect(pool.query).toHaveBeenCalledWith('SELECT * FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+      expect(_query).toHaveBeenCalledWith('SELECT * FROM dexcom_tokens WHERE user_id = $1', ['userId']);
     });
   });
 

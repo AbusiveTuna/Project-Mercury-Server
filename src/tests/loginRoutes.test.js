@@ -1,8 +1,8 @@
-const request = require('supertest');
-const app = require('../index');
-const pool = require('../db/db');
-const emailjs = require('@emailjs/nodejs');
-const bcrypt = require('bcryptjs');
+import request from 'supertest';
+import app from '../index';
+import { query } from '../db/db';
+import { send as _send } from '@emailjs/nodejs';
+import { hash, compare } from 'bcryptjs';
 
 let testUser = {
     username: 'testuser',
@@ -19,7 +19,7 @@ beforeEach(async () => {
 
 afterEach(async () => {
     // Delete user after each test
-    await pool.query('DELETE FROM users WHERE username = $1', [testUser.username]);
+    await query('DELETE FROM users WHERE username = $1', [testUser.username]);
 });
 
 //used as a basic test to ensure things are running.
@@ -48,7 +48,7 @@ test('Valid Add User Test', async () => {
     expect(response.body).toHaveProperty('username', 'testuser2222');
 
     //need to ensure that test user is deleted
-    await pool.query('DELETE FROM users WHERE username = $1', ['testuser2222']);
+    await query('DELETE FROM users WHERE username = $1', ['testuser2222']);
 });
 
 /* 
@@ -152,11 +152,11 @@ jest.mock('@emailjs/nodejs', () => ({
 
 describe('Request Reset Routes', () => {
     beforeAll(async () => {
-        await pool.query("INSERT INTO users (username, password, email, birthdate) VALUES ('test', 'password', 'test@example.com', '2000-01-01')");
+        await query("INSERT INTO users (username, password, email, birthdate) VALUES ('test', 'password', 'test@example.com', '2000-01-01')");
     });
 
     afterAll(async () => {
-        await pool.query("DELETE FROM users WHERE username = 'test'");
+        await query("DELETE FROM users WHERE username = 'test'");
     });
 
     /* 
@@ -171,7 +171,7 @@ describe('Request Reset Routes', () => {
             .send({ email: 'test@example.com' });
         expect(res.statusCode).toEqual(200);
         expect(res.body).toEqual({ message: 'Email Sent' });
-        expect(emailjs.send).toHaveBeenCalled();
+        expect(_send).toHaveBeenCalled();
     });
 
     /* 
@@ -207,13 +207,13 @@ describe('Verify Code Routes', () => {
     const code = '123456';
 
     beforeAll(async () => {
-        await pool.query("INSERT INTO users (username, password, email, birthdate) VALUES ('test', 'password', 'test@example.com', '2000-01-01')");
-        await pool.query(`INSERT INTO password_reset (email, code) VALUES ('test@example.com', '${code}')`);
+        await query("INSERT INTO users (username, password, email, birthdate) VALUES ('test', 'password', 'test@example.com', '2000-01-01')");
+        await query(`INSERT INTO password_reset (email, code) VALUES ('test@example.com', '${code}')`);
     });
 
     afterAll(async () => {
-        await pool.query("DELETE FROM password_reset WHERE email = 'test@example.com'");
-        await pool.query("DELETE FROM users WHERE username = 'test'");
+        await query("DELETE FROM password_reset WHERE email = 'test@example.com'");
+        await query("DELETE FROM users WHERE username = 'test'");
     });
 
     /* 
@@ -263,12 +263,12 @@ describe('POST /resetPassword', () => {
     const password = 'password';
 
     beforeAll(async () => {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await pool.query("INSERT INTO users (username, password, email, birthdate) VALUES ('test', $1, 'test@example.com', '2000-01-01')", [hashedPassword]);
+        const hashedPassword = await hash(password, 10);
+        await query("INSERT INTO users (username, password, email, birthdate) VALUES ('test', $1, 'test@example.com', '2000-01-01')", [hashedPassword]);
     });
 
     afterAll(async () => {
-        await pool.query("DELETE FROM users WHERE username = 'test'");
+        await query("DELETE FROM users WHERE username = 'test'");
     });
 
     /* 
@@ -284,9 +284,9 @@ describe('POST /resetPassword', () => {
         expect(res.statusCode).toEqual(200);
         expect(res.body).toEqual({ message: 'Password reset successful' });
 
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', ['test@example.com']);
+        const result = await query('SELECT * FROM users WHERE email = $1', ['test@example.com']);
         const user = result.rows[0];
-        const match = await bcrypt.compare('newpassword', user.password);
+        const match = await compare('newpassword', user.password);
         expect(match).toBe(true);
     });
 

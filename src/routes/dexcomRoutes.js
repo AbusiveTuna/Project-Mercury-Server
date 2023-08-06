@@ -1,6 +1,6 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../db/db');
+import { Router } from 'express';
+import { query } from '../db/db';
+const router = Router();
 
 router.post('/exchangeCode', async (req, res) => {
   const { code, user_id } = req.body;
@@ -25,7 +25,7 @@ router.post('/exchangeCode', async (req, res) => {
 
     const { access_token, refresh_token } = data;
     if (access_token && refresh_token) {
-      await pool.query(
+      await query(
         'INSERT INTO dexcom_tokens (user_id, access_token, refresh_token) VALUES ($1, $2, $3)',
         [user_id, access_token, refresh_token]
       );
@@ -43,7 +43,7 @@ router.get('/getDexcomData/:userId', async (req, res) => {
 
   try {
     // Get the user's access and refresh tokens from the database
-    const result = await pool.query('SELECT * FROM dexcom_tokens WHERE user_id = $1', [userId]);
+    const result = await query('SELECT * FROM dexcom_tokens WHERE user_id = $1', [userId]);
 
     if (result.rows.length > 0) {
       const { access_token, refresh_token } = result.rows[0];
@@ -128,7 +128,7 @@ async function refreshDexcomToken(refreshToken, userId) {
     const { access_token } = data;
     if (access_token) {
       // Store the new access token in the database
-      await pool.query(
+      await query(
         'UPDATE dexcom_tokens SET access_token = $1 WHERE user_id = $2',
         [access_token, userId]
       );
@@ -147,7 +147,7 @@ router.get('/devices/:userId', async (req, res) => {
 
   try {
     // Get the user's access and refresh tokens from the database
-    const result = await pool.query('SELECT * FROM dexcom_tokens WHERE user_id = $1', [userId]);
+    const result = await query('SELECT * FROM dexcom_tokens WHERE user_id = $1', [userId]);
 
     if (result.rows.length > 0) {
       const { access_token, refresh_token } = result.rows[0];
@@ -202,7 +202,7 @@ router.delete('/removeSensor/:userId', async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const result = await pool.query('DELETE FROM dexcom_tokens WHERE user_id = $1', [userId]);
+    const result = await query('DELETE FROM dexcom_tokens WHERE user_id = $1', [userId]);
 
     if (result.rowCount > 0) {
       res.status(200).json({ message: 'Dexcom sensor information deleted successfully' });
@@ -217,5 +217,5 @@ router.delete('/removeSensor/:userId', async (req, res) => {
 
 
 
-module.exports = router;
+export default router;
 

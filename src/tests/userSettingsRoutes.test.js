@@ -1,6 +1,6 @@
-const request = require('supertest');
-const app = require('../index');
-const pool = require('../db/db');
+import request from 'supertest';
+import app from '../index';
+import { query } from '../db/db';
 
 let testUser = {
   username: 'testuser1116',
@@ -10,24 +10,24 @@ let testUser = {
 };
 
 beforeAll(async () => {
-  await pool.query(
+  await query(
     'INSERT INTO users (username, password, email, birthdate) VALUES ($1, $2, $3, $4)',
     [testUser.username, testUser.password, testUser.email, testUser.birthdate]
   );
 
-  const result = await pool.query('SELECT id FROM users WHERE username = $1', [testUser.username]);
+  const result = await query('SELECT id FROM users WHERE username = $1', [testUser.username]);
   testUser.id = result.rows[0].id;
 
-  await pool.query(
+  await query(
     'INSERT INTO user_settings (user_id, high_threshold, low_threshold) VALUES ($1, $2, $3)',
     [testUser.id, 180, 70]
   );
 });
 
 afterAll(async () => {
-  await pool.query('DELETE FROM user_settings WHERE user_id = $1', [testUser.id]);
+  await query('DELETE FROM user_settings WHERE user_id = $1', [testUser.id]);
 
-  await pool.query('DELETE FROM users WHERE id = $1', [testUser.id]);
+  await query('DELETE FROM users WHERE id = $1', [testUser.id]);
 });
 
 describe('GET /getUserSettings/:userId', () => {

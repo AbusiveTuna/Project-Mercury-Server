@@ -1,12 +1,12 @@
-const express = require('express');
+import express, { json } from 'express';
 const app = express();
 const port = process.env.PORT || 3000;
-const cors = require('cors');
-const tables = require('./db/tables');
-const loginRoutes = require('./routes/loginRoutes');
-const dexcomRoutes = require('./routes/dexcomRoutes');
-const hueRoutes = require('./routes/hueRoutes');
-const userSettingsRoutes = require('./routes/userSettingsRoutes');
+import cors from 'cors';
+import tables from './db/tables';
+import loginRoutes from './routes/loginRoutes';
+import dexcomRoutes from './routes/dexcomRoutes';
+import hueRoutes from './routes/hueRoutes';
+import userSettingsRoutes from './routes/userSettingsRoutes';
 
 //ensure database tables are created
 tables();
@@ -16,12 +16,13 @@ app.use(cors({
     optionsSuccessStatus: 200
 }));
 
-app.use(express.json());
+app.use(json());
 
 app.use(loginRoutes);
 app.use(dexcomRoutes);
 app.use(hueRoutes);
+app.use(userSettingsRoutes);
 
-module.exports = app;
+export default app;
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
