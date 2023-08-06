@@ -23,14 +23,14 @@ router.post('/hueAuth', async (req, res) => {
 
 router.post('/updateHueDevices/:userId', async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const { userId } = req.params;
     console.log(req.body);
     console.log("Body above params below");
     console.log(req.params);
-    console.log(user_id);
+    console.log(userId);
     const result = await pool.query(
       'SELECT * FROM hue_tokens WHERE user_id = $1',
-      [user_id]
+      [userId]
     );
     //console.log(result);
     if (result.rows.length === 0) {
@@ -54,7 +54,7 @@ router.post('/updateHueDevices/:userId', async (req, res) => {
       devices.map((device) =>
         pool.query(
           'INSERT INTO hue_lights (user_id, lightname, rid, rtype) VALUES ($1, $2, $3, $4) ON CONFLICT (rid) DO UPDATE SET lightname=$2, rtype=$4',
-          [user_id, device.lightname, device.rid, device.rtype]
+          [userId, device.lightname, device.rid, device.rtype]
         )
       )
     );
@@ -67,10 +67,10 @@ router.post('/updateHueDevices/:userId', async (req, res) => {
 
 router.get('/getHueDevices/:userId', async (req, res) => {
   try {
-    const { user_id } = req.params;
+    const { userId } = req.params;
     const result = await pool.query(
       'SELECT * FROM hue_lights WHERE user_id = $1',
-      [user_id]
+      [userId]
     );
     if (result.rows.length === 0) {
       res.status(400).json({ message: 'No Hue devices found for this user' });
