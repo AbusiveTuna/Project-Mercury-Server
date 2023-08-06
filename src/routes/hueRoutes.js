@@ -33,7 +33,7 @@ router.post('/updateHueDevices/:userId', async (req, res) => {
       return;
     }
     const { username, ip_address } = result.rows[0];
-    const url = `https://${ip_address}/clip/v2/resource/device`;
+    const url = `http://${ip_address}/clip/v2/resource/device`;
     const response = await fetch(url, {
       headers: {
         'hue-application-key': username,
