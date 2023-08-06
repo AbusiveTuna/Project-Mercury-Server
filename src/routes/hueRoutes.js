@@ -2,6 +2,15 @@ import express from 'express';
 const router = express.Router();
 import pool from '../db/db.js';
 import fetch from 'node-fetch';
+import { createProxyMiddleware } from 'http-proxy-middleware';
+
+router.use('/proxy', createProxyMiddleware({
+  target: 'https://192.168.68.112',
+  changeOrigin: true,
+  onProxyRes: (proxyRes) => {
+    proxyRes.headers['Access-Control-Allow-Origin'] = '*';
+  },
+}));
 
 router.post('/hueAuth', async (req, res) => {
   try {
