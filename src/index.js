@@ -2,7 +2,7 @@ import express, { json } from 'express';
 const app = express();
 const port = process.env.PORT || 3000;
 import cors from 'cors';
-import tables from './db/tables';
+import tables from './db/tables.js';
 import loginRoutes from './routes/loginRoutes';
 import dexcomRoutes from './routes/dexcomRoutes';
 import hueRoutes from './routes/hueRoutes';
