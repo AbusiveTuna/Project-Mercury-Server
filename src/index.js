@@ -5,7 +5,7 @@ import cors from 'cors';
 import tables from './db/tables.js';
 import loginRoutes from './routes/loginRoutes.js';
 import dexcomRoutes from './routes/dexcomRoutes.js';
-import hueRoutes from './routes/hueRoutes.cjs';
+import hueRoutes from './routes/hueRoutes.js';
 import userSettingsRoutes from './routes/userSettingsRoutes.js';
 
 //ensure database tables are created
