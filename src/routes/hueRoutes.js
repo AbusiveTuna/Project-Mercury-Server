@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import pool from '../db/db';
+import pool from '../db/db.js';
 import fetch from 'node-fetch';
 
 router.post('/hueAuth', async (req, res) => {

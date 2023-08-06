@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { query } from '../db/db';
+import { query } from '../db/db.js';
 const router = Router();
 
 router.post('/exchangeCode', async (req, res) => {

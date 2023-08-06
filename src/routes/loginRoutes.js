@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 import { hash, compare } from 'bcryptjs';
-import { query } from '../db/db';
+import { query } from '../db/db.js';
 import { send } from '@emailjs/nodejs';
 import { isEmail, normalizeEmail, isLength, escape } from 'validator';
 
