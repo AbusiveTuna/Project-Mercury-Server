@@ -5,8 +5,7 @@ import fetch from 'node-fetch';
 
 router.post('/hueAuth', async (req, res) => {
   try {
-    const { ipAddress, username, clientkey } = req.body;
-    const user_id = req.user.id;
+    const { ipAddress, user_id } = req.body;
     const url = `https://${ipAddress}/api`;
     const body = {
       devicetype: 'projectmercury#webportal',
@@ -17,10 +16,15 @@ router.post('/hueAuth', async (req, res) => {
       body: JSON.stringify(body),
     });
     const data = await response.json();
+    console.log(data);
     if (data[0].error && data[0].error.type === 101) {
       res.status(400).json({ message: 'Link Button not pressed on bridge' });
       return;
     }
+
+    const username = data[0].success.username;
+    const clientkey = data[0].success.clientkey;
+
     await pool.query(
       'INSERT INTO hue_tokens (user_id, username, clientkey, ip_address) VALUES ($1, $2, $3, $4)',
       [user_id, username, clientkey, ipAddress]
