@@ -1,6 +1,6 @@
-import express from 'express';
+const express = require('express');
 const router = express.Router();
-import pool from '../db/db.js';
+const pool = require('../db/db.js');
 const v3 = require('node-hue-api').v3;
 const LightState = v3.lightStates.LightState;
 
@@ -136,4 +136,4 @@ router.post('/toggleHueLight', async (req, res) => {
 });
 
 
-export default router;
+module.exports = router;
