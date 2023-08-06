@@ -9,7 +9,7 @@ router.post('/hueAuth', async (req, res) => {
     const user_id = req.user.id;
     const url = `https://${ipAddress}/api`;
     const body = {
-      devicetype: 'app_name#instance_name',
+      devicetype: 'projectmercury#webportal',
       generateclientkey: true,
     };
     const response = await fetch(url, {
