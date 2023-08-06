@@ -48,10 +48,20 @@ router.post('/storeHueData', async (req, res) => {
     // Iterate through the hueData object and insert each light into the database
     for (const lightId in hueData) {
       const light = hueData[lightId];
-      await pool.query(
-        'INSERT INTO hue_lights (user_id, lightname, rid, rtype) VALUES ($1, $2, $3, $4)',
-        [userId, light.name, lightId, light.type]
+
+      // Check if the lightname already exists for the user
+      const existingLight = await pool.query(
+        'SELECT * FROM hue_lights WHERE user_id = $1 AND lightname = $2',
+        [userId, light.name]
       );
+
+      // If the lightname does not exist, insert it into the database
+      if (existingLight.rowCount === 0) {
+        await pool.query(
+          'INSERT INTO hue_lights (user_id, lightname, rid, rtype) VALUES ($1, $2, $3, $4)',
+          [userId, light.name, lightId, light.type]
+        );
+      }
     }
 
     await pool.query('COMMIT');
@@ -63,6 +73,7 @@ router.post('/storeHueData', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
 
 router.get('/getHueDevices/:userId', async (req, res) => {
   try {
