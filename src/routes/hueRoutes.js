@@ -10,10 +10,6 @@ router.post('/hueAuth', async (req, res) => {
       res.status(400).json({ message: 'Missing required parameters' });
       return;
     }
-    console.log(ipAddress);
-    console.log(user_id);
-    console.log(username);
-    console.log(clientkey);
     await pool.query(
       'INSERT INTO hue_tokens (user_id, username, clientkey, ip_address) VALUES ($1, $2, $3, $4)',
       [user_id, username, clientkey, ipAddress]
@@ -28,12 +24,15 @@ router.post('/hueAuth', async (req, res) => {
 router.post('/updateHueDevices/:userId', async (req, res) => {
   try {
     const { user_id } = req.params;
+    console.log(req.body);
+    console.log("Body above params below");
+    console.log(req.params);
     console.log(user_id);
     const result = await pool.query(
       'SELECT * FROM hue_tokens WHERE user_id = $1',
       [user_id]
     );
-    console.log(result);
+    //console.log(result);
     if (result.rows.length === 0) {
       res.status(400).json({ message: 'No Hue tokens found for this user' });
       return;
