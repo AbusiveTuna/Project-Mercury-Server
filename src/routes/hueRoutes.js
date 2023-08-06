@@ -5,32 +5,11 @@ import fetch from 'node-fetch';
 
 router.post('/hueAuth', async (req, res) => {
   try {
-    const { ipAddress, user_id } = req.body;
-    const url = `http://${ipAddress}/api`;
-    console.log(url);
-    const body = {
-      devicetype: 'projectmercury#webportal',
-      generateclientkey: true,
-    };
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-    console.log(response);
-    const data = await response.json();
-    console.log(response);
-    console.log(data);
-    if (data[0].error && data[0].error.type === 101) {
-      res.status(400).json({ message: 'Link Button not pressed on bridge' });
+    const { ipAddress, user_id ,username, clientkey} = req.body;
+    if (!user_id || !username || !clientkey || !ipAddress) {
+      res.status(400).json({ message: 'Missing required parameters' });
       return;
     }
-
-    const username = data[0].success.username;
-    const clientkey = data[0].success.clientkey;
-
     await pool.query(
       'INSERT INTO hue_tokens (user_id, username, clientkey, ip_address) VALUES ($1, $2, $3, $4)',
       [user_id, username, clientkey, ipAddress]
