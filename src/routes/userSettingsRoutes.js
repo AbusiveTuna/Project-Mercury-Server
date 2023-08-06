@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { query } from '../db/db.js';
+import pool from '../db/db.js';
 const router = Router();
 
 
@@ -7,7 +7,7 @@ router.get('/getUserSettings/:userId', async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const result = await query('SELECT * FROM user_settings WHERE user_id = $1', [userId]);
+    const result = await pool.query('SELECT * FROM user_settings WHERE user_id = $1', [userId]);
 
     if (result.rows.length > 0) {
       res.json(result.rows[0]);
@@ -25,7 +25,7 @@ router.post('/updateUserSettings/:userId', async (req, res) => {
   const { highThreshold, lowThreshold } = req.body;
 
   try {
-    const result = await query(
+    const result = await pool.query(
       'UPDATE user_settings SET high_threshold = $1, low_threshold = $2 WHERE user_id = $3 RETURNING *',
       [highThreshold, lowThreshold, userId]
     );
