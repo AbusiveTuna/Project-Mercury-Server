@@ -21,35 +21,28 @@ router.post('/hueAuth', async (req, res) => {
   }
 });
 
-router.post('/updateHueDevices/:userId', async (req, res) => {
+// Endpoint to retrieve Hue tokens and IP address
+router.get('/getHueTokens/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    console.log(req.body);
-    console.log("Body above params below");
-    console.log(req.params);
-    console.log(userId);
-    const result = await pool.query(
-      'SELECT * FROM hue_tokens WHERE user_id = $1',
-      [userId]
-    );
-    //console.log(result);
+    const result = await pool.query('SELECT * FROM hue_tokens WHERE user_id = $1', [userId]);
     if (result.rows.length === 0) {
       res.status(400).json({ message: 'No Hue tokens found for this user' });
       return;
     }
-    const { username, ip_address } = result.rows[0];
-    const url = `https://${ip_address}/clip/v2/resource/device`;
-    const response = await fetch(url, {
-      headers: {
-        'hue-application-key': username,
-      },
-    });
-    const data = await response.json();
-    const devices = data.data.map((device) => ({
-      lightname: device.metadata.name,
-      rid: device.services[0].rid,
-      rtype: device.services[0].rtype,
-    }));
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Endpoint to update Hue devices
+router.post('/updateHueDevices/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const devices = req.body;
+
     await Promise.all(
       devices.map((device) =>
         pool.query(
@@ -64,6 +57,7 @@ router.post('/updateHueDevices/:userId', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
 
 router.get('/getHueDevices/:userId', async (req, res) => {
   try {
