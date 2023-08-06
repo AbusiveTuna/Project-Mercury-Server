@@ -23,6 +23,7 @@ router.post('/hueAuth', async (req, res) => {
 
 router.post('/updateHueDevices/:userId', async (req, res) => {
   try {
+    console.log("hit here");
     const { userId } = req.params;
     const result = await pool.query(
       'SELECT * FROM hue_tokens WHERE user_id = $1',
