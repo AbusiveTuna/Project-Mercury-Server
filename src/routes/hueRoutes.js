@@ -10,6 +10,10 @@ router.post('/hueAuth', async (req, res) => {
       res.status(400).json({ message: 'Missing required parameters' });
       return;
     }
+    console.log(ipAddress);
+    console.log(user_id);
+    console.log(username);
+    console.log(clientkey);
     await pool.query(
       'INSERT INTO hue_tokens (user_id, username, clientkey, ip_address) VALUES ($1, $2, $3, $4)',
       [user_id, username, clientkey, ipAddress]
