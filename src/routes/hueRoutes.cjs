@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const v3 = require('node-hue-api').v3;
+const v3 = require('node-hue-api').v3
+  , discovery = v3.discovery
+  , hueApi = v3.api 
+;
 const LightState = v3.lightStates.LightState;
 
 let pool;
@@ -86,12 +89,14 @@ router.get('/getHueDevices/:userId', async (req, res) => {
     const { ip_address, username } = tokenResult.rows[0];
 
     // Create a new API instance
-    console.log(ip_address, username);
-    const api = await v3.api.createLocal(ip_address).connect(username);
-    const bridgeConfig = await api.configuration.getConfiguration();
+
+    const authenticatedApi = await hueApi.createLocal(ip_address).connect(username);
+
+    // Do something with the authenticated user/api
+    const bridgeConfig = await authenticatedApi.configuration.getConfiguration();
     console.log(`Connected to Hue Bridge: ${bridgeConfig.name} :: ${bridgeConfig.ipaddress}`);
     // Get all lights
-    const lights = await api.lights.getAll();
+    const lights = await authenticatedApi.lights.getAll();
 
     // Extract the light names
     const devices = lights.map((light) => light.name);
