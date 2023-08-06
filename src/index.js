@@ -12,7 +12,7 @@ import userSettingsRoutes from './routes/userSettingsRoutes.js';
 tables();
 
 app.use(cors({
-    origin: ['https://projectsmercury.com','localhost:3000'],
+    origin: ['https://projectsmercury.com','http://localhost:3000'],
     optionsSuccessStatus: 200
 }));
 
