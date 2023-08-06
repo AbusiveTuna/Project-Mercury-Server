@@ -42,6 +42,10 @@ const createTables = async () => {
         );
       `);
 
+      await pool.query(`
+  DROP TABLE IF EXISTS hue_tokens;
+`);
+
     await pool.query(`
     CREATE TABLE IF NOT EXISTS hue_tokens (
       id SERIAL PRIMARY KEY,
