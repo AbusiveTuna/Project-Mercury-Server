@@ -2,8 +2,7 @@ import express from 'express';
 const router = express.Router();
 import bcryptjs from 'bcryptjs';
 const { hash, compare } = bcryptjs;
-import db from '../db/db.js';
-const { query } = db;
+import pool from '../db/db.js';
 import emailjs from '@emailjs/nodejs';
 const { send } = emailjs;
 import validator from 'validator';
@@ -62,7 +61,7 @@ router.post('/addUser', async (req, res) => {
     birthdate = validatedInput.birthdate;
     
     const hashedPassword = await hash(password, 10);
-    const user = await query(
+    const user = await pool.query(
       "INSERT INTO users (username, password, email, birthdate) VALUES ($1, $2, $3, $4) RETURNING *",
       [username, hashedPassword, email, birthdate]
     );
@@ -85,7 +84,7 @@ router.post('/login', async (req, res) => {
     const validatedInput = validateUserInput(username,password,"None@gmail.com","1990-01-01");
     username = validatedInput.username;
     password = validatedInput.password;
-    const result = await query('SELECT * FROM users WHERE username = $1', [username]);
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
@@ -117,7 +116,7 @@ router.get('/checkUsernameAvailability/:username', async (req, res) => {
   try {
     const validatedInput = validateUserInput(username,"None1234!","None@gmail.com","1990-01-01");
     username = validatedInput.username;
-    const result = await query('SELECT * FROM users WHERE username = $1', [username]);
+    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (result.rows.length > 0) {
       res.json({ isAvailable: false });
     } else {
@@ -140,12 +139,12 @@ router.post('/requestReset', async (req, res) => {
   try {
     const validatedInput = validateUserInput("none1234","None1234!",email,"1990-01-01");
     email = validatedInput.email;
-    const result = await query('SELECT * FROM users WHERE email = $1', [email]);
+    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length > 0) {
       //generates a six-digit verification code
       const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-      await query(
+      await pool.query(
         'INSERT INTO password_reset (email, code) VALUES ($1, $2)',
         [email, code]
       );
@@ -187,7 +186,7 @@ router.post('/verifyCode', async (req, res) => {
     const validatedInput = validateUserInput(code,"None1234!",email,"1990-01-01");
     email = validatedInput.email;
     code = validatedInput.username; //Code is being sent as username in validateUserInput
-    const result = await query(
+    const result = await pool.query(
       'SELECT * FROM password_reset WHERE email = $1 AND code = $2',
       [email, code]
     );
@@ -226,7 +225,7 @@ router.post('/resetPassword', async (req, res) => {
     newPassword = validatedInput.password; 
     const hashedPassword = await hash(newPassword, 10);
 
-    await query(
+    await pool.query(
       'UPDATE users SET password = $1 WHERE email = $2',
       [hashedPassword, email]
     );
