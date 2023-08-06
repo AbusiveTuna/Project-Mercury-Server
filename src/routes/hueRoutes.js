@@ -21,31 +21,26 @@ router.post('/hueAuth', async (req, res) => {
   }
 });
 
-router.post('/updateHueDevices/:userId', async (req, res) => {
+router.get('/getHueTokens/:userId', async (req, res) => {
   try {
     const { userId } = req.params;
-    const result = await pool.query(
-      'SELECT * FROM hue_tokens WHERE user_id = $1',
-      [userId]
-    );
+    const result = await pool.query('SELECT * FROM hue_tokens WHERE user_id = $1', [userId]);
     if (result.rows.length === 0) {
       res.status(400).json({ message: 'No Hue tokens found for this user' });
       return;
     }
-    const { username, ip_address } = result.rows[0];
-    const url = `http://${ip_address}/clip/v2/resource/device`;
-    const response = await fetch(url, {
-      headers: {
-        'hue-application-key': username,
-      },
-    });
-    const data = await response.json();
-    console.log(data);
-    const devices = data.data.map((device) => ({
-      lightname: device.metadata.name,
-      rid: device.services[0].rid,
-      rtype: device.services[0].rtype,
-    }));
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+router.post('/updateHueDevices/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const devices = req.body;
+
     await Promise.all(
       devices.map((device) =>
         pool.query(
@@ -54,15 +49,13 @@ router.post('/updateHueDevices/:userId', async (req, res) => {
         )
       )
     );
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-
     res.json({ message: 'Device list updated successfully' });
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
   }
 });
+
 
 router.get('/getHueDevices/:userId', async (req, res) => {
   try {
