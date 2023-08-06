@@ -86,6 +86,7 @@ router.get('/getHueDevices/:userId', async (req, res) => {
     const { ip_address, username } = tokenResult.rows[0];
 
     // Create a new API instance
+    console.log(ip_address, username);
     const api = await v3.api.createLocal(ip_address).connect(username);
 
     // Get all lights
