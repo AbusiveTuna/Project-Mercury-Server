@@ -1,8 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db/db.js');
 const v3 = require('node-hue-api').v3;
 const LightState = v3.lightStates.LightState;
+
+let pool;
+
+import('../db/db.js').then(db => {
+  pool = db;
+});
 
 router.post('/hueAuth', async (req, res) => {
   try {
