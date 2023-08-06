@@ -1,9 +1,14 @@
-import { Router } from 'express';
-const router = Router();
-import { hash, compare } from 'bcryptjs';
-import { query } from '../db/db.js';
-import { send } from '@emailjs/nodejs';
-import { isEmail, normalizeEmail, isLength, escape } from 'validator';
+import express from 'express';
+const router = express.Router();
+import bcryptjs from 'bcryptjs';
+const { hash, compare } = bcryptjs;
+import db from '../db/db.js';
+const { query } = db;
+import emailjs from '@emailjs/nodejs';
+const { send } = emailjs;
+import validator from 'validator';
+const { isEmail, normalizeEmail, isLength, escape } = validator;
+
 
 router.get('/', (req, res) => res.send('Hello World!'));
 
