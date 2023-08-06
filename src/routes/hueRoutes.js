@@ -14,9 +14,14 @@ router.post('/hueAuth', async (req, res) => {
     };
     const response = await fetch(url, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(body),
     });
+    console.log(response);
     const data = await response.json();
+    console.log(response);
     console.log(data);
     if (data[0].error && data[0].error.type === 101) {
       res.status(400).json({ message: 'Link Button not pressed on bridge' });
