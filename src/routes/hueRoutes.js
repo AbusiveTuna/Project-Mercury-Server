@@ -33,7 +33,9 @@ router.post('/updateHueDevices/:userId', async (req, res) => {
       return;
     }
     const { username, ip_address } = result.rows[0];
-    const url = `http://${ip_address}/api/${username}/lights`;
+    console.log(username);
+    console.log(ip_address);
+    const url = `https://${ip_address}/api/${username}/lights`;
     const response = await fetch(url, {
     });
     const data = await response.json();
