@@ -6,7 +6,7 @@ const LightState = v3.lightStates.LightState;
 let pool;
 
 import('../db/db.js').then(db => {
-  pool = db;
+  pool = db.default;
 });
 
 router.post('/hueAuth', async (req, res) => {
