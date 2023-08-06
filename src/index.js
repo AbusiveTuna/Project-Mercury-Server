@@ -12,7 +12,7 @@ const userSettingsRoutes = require('./routes/userSettingsRoutes');
 tables();
 
 app.use(cors({
-    origin: ['https://projectsmercury.com'],
+    origin: ['https://projectsmercury.com','localhost:3000'],
     optionsSuccessStatus: 200
 }));
 
