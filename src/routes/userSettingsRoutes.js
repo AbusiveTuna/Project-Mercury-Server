@@ -12,13 +12,21 @@ router.get('/getUserSettings/:userId', async (req, res) => {
     if (result.rows.length > 0) {
       res.json(result.rows[0]);
     } else {
-      res.status(404).json({ message: 'User settings not found' });
+      // Create new record with default values
+      const defaultHighThreshold = 300; // Set default value
+      const defaultLowThreshold = 60; // Set default value
+      const insertResult = await pool.query(
+        'INSERT INTO user_settings (user_id, high_threshold, low_threshold) VALUES ($1, $2, $3) RETURNING *',
+        [userId, defaultHighThreshold, defaultLowThreshold]
+      );
+      res.json(insertResult.rows[0]);
     }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'An error occurred while retrieving user settings' });
   }
 });
+
 
 router.post('/updateUserSettings/:userId', async (req, res) => {
   const { userId } = req.params;
@@ -33,13 +41,18 @@ router.post('/updateUserSettings/:userId', async (req, res) => {
     if (result.rows.length > 0) {
       res.json(result.rows[0]);
     } else {
-      res.status(404).json({ message: 'User settings not found' });
+      const insertResult = await pool.query(
+        'INSERT INTO user_settings (user_id, high_threshold, low_threshold) VALUES ($1, $2, $3) RETURNING *',
+        [userId, highThreshold, lowThreshold]
+      );
+      res.json(insertResult.rows[0]);
     }
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'An error occurred while updating user settings' });
   }
 });
+
 
 export default router;
 
