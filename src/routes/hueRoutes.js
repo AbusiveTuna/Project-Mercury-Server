@@ -32,9 +32,9 @@ router.post('/hueAuth', async (req, res) => {
   }
 });
 
-router.post('/updateHueDevices', async (req, res) => {
+router.post('/updateHueDevices/:userId', async (req, res) => {
   try {
-    const user_id = req.user.id;
+    const { user_id } = req.params;
     const result = await pool.query(
       'SELECT * FROM hue_tokens WHERE user_id = $1',
       [user_id]
@@ -71,9 +71,9 @@ router.post('/updateHueDevices', async (req, res) => {
   }
 });
 
-router.get('/getHueDevices', async (req, res) => {
+router.get('/getHueDevices/:userId', async (req, res) => {
   try {
-    const user_id = req.user.id;
+    const { user_id } = req.params;
     const result = await pool.query(
       'SELECT * FROM hue_lights WHERE user_id = $1',
       [user_id]
