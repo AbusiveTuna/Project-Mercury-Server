@@ -17,7 +17,7 @@ router.get('/', (req, res) => res.send('Hello World!'));
  * Usernames must be at least 3 characters, Passwords must be at least 8
  * Returns: Sanitized User Input
 */
-function validateUserInput(username,password,email,birthdate){
+function validateUserInput(username, password, email, birthdate) {
 
   if (!isEmail(email)) {
     throw new Error('Invalid email address');
@@ -28,15 +28,15 @@ function validateUserInput(username,password,email,birthdate){
   if (!isLength(username, { min: 3 })) {
     throw new Error('Username must be at least 3 characters long');
   }
-  
+
   if (!isLength(password, { min: 8 })) {
     throw new Error('Password must be at least 8 characters long');
   }
-  
+
   const sanitizedUsername = escape(username);
   const sanitizedPassword = escape(password);
   const sanitizedBirthdate = escape(birthdate);
-  
+
   return {
     username: sanitizedUsername,
     password: sanitizedPassword,
@@ -54,12 +54,12 @@ router.post('/addUser', async (req, res) => {
   let { username, password, email, birthdate } = req.body;
 
   try {
-    const validatedInput = validateUserInput(username,password,email,birthdate);
+    const validatedInput = validateUserInput(username, password, email, birthdate);
     username = validatedInput.username;
     password = validatedInput.password;
     email = validatedInput.email;
     birthdate = validatedInput.birthdate;
-    
+
     const hashedPassword = await hash(password, 10);
     const user = await pool.query(
       "INSERT INTO users (username, password, email, birthdate) VALUES ($1, $2, $3, $4) RETURNING *",
@@ -81,7 +81,7 @@ router.post('/login', async (req, res) => {
   let { username, password } = req.body;
 
   try {
-    const validatedInput = validateUserInput(username,password,"None@gmail.com","1990-01-01");
+    const validatedInput = validateUserInput(username, password, "None@gmail.com", "1990-01-01");
     username = validatedInput.username;
     password = validatedInput.password;
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
@@ -114,7 +114,7 @@ router.post('/login', async (req, res) => {
 router.get('/checkUsernameAvailability/:username', async (req, res) => {
   let { username } = req.params;
   try {
-    const validatedInput = validateUserInput(username,"None1234!","None@gmail.com","1990-01-01");
+    const validatedInput = validateUserInput(username, "None1234!", "None@gmail.com", "1990-01-01");
     username = validatedInput.username;
     const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
     if (result.rows.length > 0) {
@@ -137,7 +137,7 @@ router.post('/requestReset', async (req, res) => {
   let { email } = req.body;
 
   try {
-    const validatedInput = validateUserInput("none1234","None1234!",email,"1990-01-01");
+    const validatedInput = validateUserInput("none1234", "None1234!", email, "1990-01-01");
     email = validatedInput.email;
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
     if (result.rows.length > 0) {
@@ -148,23 +148,23 @@ router.post('/requestReset', async (req, res) => {
         'INSERT INTO password_reset (email, code) VALUES ($1, $2)',
         [email, code]
       );
-        const emailParams = {
-            user_email: email,
-            user_name: email,
-            user_code: code
-        };
-        
-        await send(
-            process.env.EMAILJS_SERVICE_KEY,
-            process.env.EMAILJS_TEMPLATE_KEY,
-            emailParams,
-            {
-              publicKey: process.env.EMAILJS_PUBLIC_KEY,
-              privateKey: process.env.EMAILJS_PRIVATE_KEY,
-            },
-          );
+      const emailParams = {
+        user_email: email,
+        user_name: email,
+        user_code: code
+      };
 
-        res.status(200).json({ message: 'Email Sent' });
+      await send(
+        process.env.EMAILJS_SERVICE_KEY,
+        process.env.EMAILJS_TEMPLATE_KEY,
+        emailParams,
+        {
+          publicKey: process.env.EMAILJS_PUBLIC_KEY,
+          privateKey: process.env.EMAILJS_PRIVATE_KEY,
+        },
+      );
+
+      res.status(200).json({ message: 'Email Sent' });
 
     } else {
       res.status(404).json({ message: 'Email not found' });
@@ -183,7 +183,7 @@ router.post('/requestReset', async (req, res) => {
 router.post('/verifyCode', async (req, res) => {
   let { email, code } = req.body;
   try {
-    const validatedInput = validateUserInput(code,"None1234!",email,"1990-01-01");
+    const validatedInput = validateUserInput(code, "None1234!", email, "1990-01-01");
     email = validatedInput.email;
     code = validatedInput.username; //Code is being sent as username in validateUserInput
     const result = await pool.query(
@@ -220,9 +220,9 @@ router.post('/resetPassword', async (req, res) => {
   let { email, newPassword } = req.body;
 
   try {
-    const validatedInput = validateUserInput("None1234",newPassword,email,"1990-01-01");
+    const validatedInput = validateUserInput("None1234", newPassword, email, "1990-01-01");
     email = validatedInput.email;
-    newPassword = validatedInput.password; 
+    newPassword = validatedInput.password;
     const hashedPassword = await hash(newPassword, 10);
 
     await pool.query(

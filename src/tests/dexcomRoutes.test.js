@@ -61,13 +61,13 @@ describe('GET /devices/:userId', () => {
         status: 200,
       })
     );
-  
+
     const res = await request(app).get('/devices/userId');
-  
+
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual([]);
   });
-  
+
   /* 
   * Test Name: Refresh token failure
   * Unit Test ID: SUT22
@@ -142,7 +142,7 @@ describe('DELETE /removeSensor/:userId', () => {
   });
 
   describe('GET /getDexcomData/:userId', () => {
-  
+
     /* 
     * Test Name: Dexcom Token Return
     * Unit Test ID: SUT26
@@ -155,9 +155,9 @@ describe('DELETE /removeSensor/:userId', () => {
           status: 200,
         })
       );
-  
+
       const res = await request(app).get('/getDexcomData/userId');
-  
+
       expect(res.statusCode).toEqual(200);
       expect(res.body).toEqual({ data: 'data' });
       expect(_query).toHaveBeenCalledWith('SELECT * FROM dexcom_tokens WHERE user_id = $1', ['userId']);
@@ -165,7 +165,7 @@ describe('DELETE /removeSensor/:userId', () => {
   });
 
   describe('POST /exchangeCode', () => {
-  
+
     /* 
     * Test Name: Exchange Code Error
     * Unit Test ID: SUT27
@@ -177,15 +177,15 @@ describe('DELETE /removeSensor/:userId', () => {
           json: () => Promise.resolve({}),
         })
       );
-  
+
       const res = await request(app)
         .post('/exchangeCode')
         .send({ code: 'code', user_id: 'user_id' });
-  
+
       expect(res.statusCode).toEqual(500);
       expect(res.body).toEqual({ error: 'Failed to exchange code: No access or refresh token received' });
     });
-  
+
     /* 
     * Test Name: Exchange code fetching error
     * Unit Test ID: SUT28
@@ -195,11 +195,11 @@ describe('DELETE /removeSensor/:userId', () => {
       global.fetch.mockImplementationOnce(() =>
         Promise.reject(new Error('Fetch error'))
       );
-  
+
       const res = await request(app)
         .post('/exchangeCode')
         .send({ code: 'code', user_id: 'user_id' });
-  
+
       expect(res.statusCode).toEqual(500);
       expect(res.body).toEqual({ error: 'Failed to exchange code: No access or refresh token received' });
     });
