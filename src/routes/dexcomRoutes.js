@@ -33,7 +33,7 @@ router.post('/exchangeCode', async (req, res) => {
       res.status(200).json({ message: 'Tokens exchanged and stored successfully' });
     } else {
       res.status(500).json({ error: 'Failed to exchange code: No access or refresh token received' });
-    }    
+    }
   } catch (error) {
     res.status(500).json({ error: 'Failed to exchange code' });
   }

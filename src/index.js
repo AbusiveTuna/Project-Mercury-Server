@@ -8,16 +8,17 @@ import dexcomRoutes from './routes/dexcomRoutes.js';
 import hueRoutes from './routes/hueRoutes.js';
 import userSettingsRoutes from './routes/userSettingsRoutes.js';
 
-//ensure database tables are created
+//Create database tables
 tables();
 
 app.use(cors({
-    origin: ['https://projectsmercury.com','http://localhost:3000'],
+    origin: ['https://projectsmercury.com', 'http://localhost:3000'],
     optionsSuccessStatus: 200
 }));
 
 app.use(json());
 
+//add our routes
 app.use(loginRoutes);
 app.use(dexcomRoutes);
 app.use(hueRoutes);

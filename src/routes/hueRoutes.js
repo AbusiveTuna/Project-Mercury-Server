@@ -5,7 +5,7 @@ import pool from '../db/db.js';
 
 router.post('/hueAuth', async (req, res) => {
   try {
-    const { ipAddress, user_id ,username, clientkey} = req.body;
+    const { ipAddress, user_id, username, clientkey } = req.body;
     if (!user_id || !username || !clientkey || !ipAddress) {
       res.status(400).json({ message: 'Missing required parameters' });
       return;
