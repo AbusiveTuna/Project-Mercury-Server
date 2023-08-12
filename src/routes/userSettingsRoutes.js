@@ -22,7 +22,6 @@ router.get('/getUserSettings/:userId', async (req, res) => {
       res.json(insertResult.rows[0]);
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'An error occurred while retrieving user settings' });
   }
 });
@@ -48,7 +47,6 @@ router.post('/updateUserSettings/:userId', async (req, res) => {
       res.json(insertResult.rows[0]);
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'An error occurred while updating user settings' });
   }
 });

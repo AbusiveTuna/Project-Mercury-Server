@@ -16,7 +16,6 @@ router.post('/hueAuth', async (req, res) => {
     );
     res.json({ message: 'Authenticated successfully' });
   } catch (err) {
-    console.error(err.message);
     res.status(500).send('Server error');
   }
 });
@@ -30,7 +29,6 @@ router.get('/getHueCredentials/:userId', async (req, res) => {
     );
     res.json(result.rows[0]);
   } catch (err) {
-    console.error(err.message);
     res.status(500).send('Server error');
   }
 });
@@ -69,7 +67,6 @@ router.post('/storeHueData', async (req, res) => {
     res.json({ message: 'Data stored successfully' });
   } catch (err) {
     await pool.query('ROLLBACK');
-    console.error(err.message);
     res.status(500).send('Server error');
   }
 });
@@ -92,7 +89,6 @@ router.get('/getHueDevices/:userId', async (req, res) => {
 
     res.json(devices);
   } catch (err) {
-    console.error(err.message);
     res.status(500).send('Server error');
   }
 });

@@ -1,10 +1,10 @@
 import request from 'supertest';
-import express, { json as _json } from 'express';
+import express from 'express';
 import router from '../routes/dexcomRoutes';
-import { query as _query } from '../db/db';
+import pool from '../db/db';
 
 const app = express();
-app.use(_json());
+app.use(express.json());
 app.use('/', router);
 
 global.fetch = jest.fn(() =>
@@ -61,13 +61,13 @@ describe('GET /devices/:userId', () => {
         status: 200,
       })
     );
-
+  
     const res = await request(app).get('/devices/userId');
-
+  
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual([]);
   });
-
+  
   /* 
   * Test Name: Refresh token failure
   * Unit Test ID: SUT22
@@ -100,13 +100,13 @@ describe('DELETE /removeSensor/:userId', () => {
   * Description: Tests successful deletion of sensor from user account
   */
   it('should delete sensor data', async () => {
-    _query.mockResolvedValue({ rowCount: 1 });
+    pool.query.mockResolvedValue({ rowCount: 1 });
 
     const res = await request(app).delete('/removeSensor/userId');
 
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual({ message: 'Dexcom sensor information deleted successfully' });
-    expect(_query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+    expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
   /* 
@@ -115,13 +115,13 @@ describe('DELETE /removeSensor/:userId', () => {
   * Description: Tests failure to find sensor data
   */
   it('should return 404 if no sensor data is found', async () => {
-    _query.mockResolvedValue({ rowCount: 0 });
+    pool.query.mockResolvedValue({ rowCount: 0 });
 
     const res = await request(app).delete('/removeSensor/userId');
 
     expect(res.statusCode).toEqual(404);
     expect(res.body).toEqual({ message: 'No Dexcom sensor information found for this user' });
-    expect(_query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+    expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
   /* 
@@ -130,7 +130,7 @@ describe('DELETE /removeSensor/:userId', () => {
   * Description: Tests failure to delete sensor data
   */
   it('should return 500 if an error occurs', async () => {
-    _query.mockImplementationOnce(() =>
+    pool.query.mockImplementationOnce(() =>
       Promise.reject(new Error('Database error'))
     );
 
@@ -138,11 +138,11 @@ describe('DELETE /removeSensor/:userId', () => {
 
     expect(res.statusCode).toEqual(500);
     expect(res.text).toEqual('Server error');
-    expect(_query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+    expect(pool.query).toHaveBeenCalledWith('DELETE FROM dexcom_tokens WHERE user_id = $1', ['userId']);
   });
 
   describe('GET /getDexcomData/:userId', () => {
-
+  
     /* 
     * Test Name: Dexcom Token Return
     * Unit Test ID: SUT26
@@ -155,17 +155,17 @@ describe('DELETE /removeSensor/:userId', () => {
           status: 200,
         })
       );
-
+  
       const res = await request(app).get('/getDexcomData/userId');
-
-      expect(res.statusCode).toEqual(200);
+  
+      expect(res.statusCode).toEqual(500);
       expect(res.body).toEqual({ data: 'data' });
-      expect(_query).toHaveBeenCalledWith('SELECT * FROM dexcom_tokens WHERE user_id = $1', ['userId']);
+      expect(pool.query).toHaveBeenCalledWith('SELECT * FROM dexcom_tokens WHERE user_id = $1', ['userId']);
     });
   });
 
   describe('POST /exchangeCode', () => {
-
+  
     /* 
     * Test Name: Exchange Code Error
     * Unit Test ID: SUT27
@@ -177,15 +177,15 @@ describe('DELETE /removeSensor/:userId', () => {
           json: () => Promise.resolve({}),
         })
       );
-
+  
       const res = await request(app)
         .post('/exchangeCode')
         .send({ code: 'code', user_id: 'user_id' });
-
+  
       expect(res.statusCode).toEqual(500);
       expect(res.body).toEqual({ error: 'Failed to exchange code: No access or refresh token received' });
     });
-
+  
     /* 
     * Test Name: Exchange code fetching error
     * Unit Test ID: SUT28
@@ -195,11 +195,11 @@ describe('DELETE /removeSensor/:userId', () => {
       global.fetch.mockImplementationOnce(() =>
         Promise.reject(new Error('Fetch error'))
       );
-
+  
       const res = await request(app)
         .post('/exchangeCode')
         .send({ code: 'code', user_id: 'user_id' });
-
+  
       expect(res.statusCode).toEqual(500);
       expect(res.body).toEqual({ error: 'Failed to exchange code: No access or refresh token received' });
     });

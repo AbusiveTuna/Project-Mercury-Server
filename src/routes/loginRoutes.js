@@ -67,7 +67,6 @@ router.post('/addUser', async (req, res) => {
     );
     res.json(user.rows[0]);
   } catch (err) {
-    console.error(err.message);
     res.status(500).send("Server error");
   }
 });
@@ -100,7 +99,6 @@ router.post('/login', async (req, res) => {
       res.status(401).json({ message: 'Invalid username or password' });
     }
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: 'An error occurred during login' });
   }
 });
