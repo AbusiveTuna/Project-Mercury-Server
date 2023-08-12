@@ -67,6 +67,20 @@ describe('GET /devices/:userId', () => {
     expect(res.statusCode).toEqual(200);
     expect(res.body).toEqual([]);
   });
+
+    /* 
+    * Test Name: No Dexcom Tokens Found
+    * Unit Test ID: SUT39
+    * Description: Tests when no Dexcom tokens are found for the user
+    */
+    it('should return 404 if no Dexcom tokens are found', async () => {
+      pool.query.mockResolvedValue({ rows: [] });
+  
+      const res = await request(app).get('/devices/userId');
+  
+      expect(res.statusCode).toEqual(404);
+      expect(res.body).toEqual({ message: 'No Dexcom tokens found for this user' });
+    });
   
   /* 
   * Test Name: Refresh token failure
@@ -162,6 +176,38 @@ describe('DELETE /removeSensor/:userId', () => {
       expect(res.body).toEqual({ data: 'data' });
       expect(pool.query).toHaveBeenCalledWith('SELECT * FROM dexcom_tokens WHERE user_id = $1', ['userId']);
     });
+
+    /* 
+    * Test Name: No Dexcom Tokens Found
+    * Unit Test ID: SUT37
+    * Description: Tests when no Dexcom tokens are found for the user
+    */
+  it('should return 404 if no Dexcom tokens are found', async () => {
+    pool.query.mockResolvedValue({ rows: [] });
+
+    const res = await request(app).get('/getDexcomData/userId');
+
+    expect(res.statusCode).toEqual(404);
+    expect(res.body).toEqual({ message: 'No Dexcom tokens found for this user' });
+  });
+
+    /* 
+    * Test Name: Error Fetching Dexcom Data
+    * Unit Test ID: SUT38
+    * Description: Tests when an error occurs while fetching Dexcom data
+    */
+    it('should return 500 if an error occurs while fetching Dexcom data', async () => {
+      global.fetch.mockImplementationOnce(() =>
+        Promise.reject(new Error('Fetch error'))
+      );
+
+      const res = await request(app).get('/getDexcomData/userId');
+
+      expect(res.statusCode).toEqual(500);
+      expect(res.body).toEqual({ message: 'Error fetching Dexcom data', error: 'Failed to fetch Dexcom data' });
+    });
+
+
   });
 
   describe('POST /exchangeCode', () => {
@@ -205,4 +251,24 @@ describe('DELETE /removeSensor/:userId', () => {
     });
   });
 
-});
+    /* 
+  * Test Name: Successful Code Exchange
+  * Unit Test ID: SUT36
+  * Description: Tests successful code exchange
+  */
+    it('should exchange code successfully', async () => {
+      global.fetch.mockImplementationOnce(() =>
+        Promise.resolve({
+          json: () => Promise.resolve({ access_token: 'access_token', refresh_token: 'refresh_token' }),
+        })
+      );
+  
+      const res = await request(app)
+        .post('/exchangeCode')
+        .send({ code: 'code', user_id: 'user_id' });
+  
+      expect(res.statusCode).toEqual(200);
+      expect(res.body).toEqual({ message: 'Tokens exchanged and stored successfully' });
+    });
+  });
+
