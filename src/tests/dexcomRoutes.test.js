@@ -69,7 +69,7 @@ describe('GET /devices/:userId', () => {
   });
 
     /* 
-    * Test Name: No Dexcom Tokens Found
+    * Test Name: No Dexcom Tokens Found for user
     * Unit Test ID: SUT39
     * Description: Tests when no Dexcom tokens are found for the user
     */
